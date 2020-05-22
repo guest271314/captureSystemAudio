@@ -1,5 +1,7 @@
 # captureSystemAudio
 Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/PulseAudio/Examples#ALSA_monitor_source)) 
+
+> To be able to record from a monitor source (a.k.a. "What-U-Hear", "Stereo Mix"), use `pactl` list to find out the name of the source in PulseAudio (e.g.  alsa_output.pci-0000_00_1b.0.analog-stereo.monitor`). 
 <h5>Background</h5>
 
 - https://lists.w3.org/Archives/Public/public-speech-api/2017Jun/0000.html

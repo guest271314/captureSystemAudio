@@ -44,7 +44,7 @@ captureSystemAudio()
   // resulting File object
   const file = await output.getFile(); 
   // pass file.arrayBuffer() to new Blob to open underlying data in file
-  // do stuff with captured system audio as WAV, Opus, other codec and container the native system supports
+  // do stuff with captured system audio as WAV, Opus, other codec and container the system supports
   console.log(output, file, URL.createObjectURL(new Blob([await file.arrayBuffer()], {type:file.type})));
 })
 .catch(e => console.error(e));

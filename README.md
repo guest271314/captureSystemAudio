@@ -1,5 +1,5 @@
 # captureSystemAudio
-Capture system audio ("What U Hear") initiated from the browser using inotify-tools, File API, Native File System
+Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/PulseAudio/Examples#ALSA_monitor_source)) initiated from the browser using inotify-tools, File API, Native File System
 
 <h5>Background</h5>
 

@@ -25,7 +25,7 @@ Capture audio monitor device with PulseAudio at Linux, stop the capture, then sa
 
 <h6>Optional</h6>
 
-`opus-tools`, `mkvtoolnix`, `ffmpeg` to convert WAV to Opus or different codec and write track to Matroska, WebM, or other media container supported at the system.
+`opus-tools`, `mkvtoolnix`, `ffmpeg` or other native code application or to convert WAV to Opus or different codec and write track to Matroska, WebM, or other media container supported at the system.
 
 <h5>Usage</h5>
 

@@ -1,6 +1,5 @@
 # captureSystemAudio
-Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/PulseAudio/Examples#ALSA_monitor_source)) initiated from the browser using [inotify-tools](https://github.com/inotify-tools/inotify-tools), [File API](https://github.com/w3c/FileAPI), [Native File System](https://github.com/WICG/native-file-system)
-
+Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/PulseAudio/Examples#ALSA_monitor_source)) 
 <h5>Background</h5>
 
 - https://lists.w3.org/Archives/Public/public-speech-api/2017Jun/0000.html
@@ -19,7 +18,7 @@ Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/Pulse
 
 <h5>Synopsis</h5>
 
-Capture audio monitor device with PulseAudio at Linux, stop the capture, then save audio locally, when local files watched by `inotifywait` are accessed or opened using File API and, or Native File System.
+Open local files watched by `inotifywait` from [inotify-tools](https://github.com/inotify-tools/inotify-tools) to capture audio monitor device at Linux, pipe output to a local file, stop audio capture, and get the resulting file.
 
 <h5>Dependencies</h5>
 
@@ -33,7 +32,7 @@ Capture audio monitor device with PulseAudio at Linux, stop the capture, then sa
 
 `$ ./notify.sh & chromium-browser --enable-experimental-web-platform-features && killall -q -9 inotifywait`
 
-At the browser capture system audio, e.g., from `window.speechSynthesis.speak()` or `ffplay blade_runner.web` or `<video>` playing in an HTML document, et al., by opening the local file `captureSystemAudio.txt`, stop capture by opening the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented `chooseFileSystemEntries()`.
+At the browser capture system audio, e.g., from `window.speechSynthesis.speak()` or `ffplay blade_runner.web` or `<video>` playing in an HTML document, et al., by opening the local file `captureSystemAudio.txt`, stop capture by opening the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `chooseFileSystemEntries()`.
 
 ```
 captureSystemAudio()

@@ -2,7 +2,7 @@
 Capture system audio ("What U Hear") initiated from the browser using inotify-tools, File API, Native File System
 
 <h5>Background</h5>
-
+- https://lists.w3.org/Archives/Public/public-speech-api/2017Jun/0000.html
 - https://github.com/whatwg/html/issues/2823
 - https://github.com/guest271314/SpeechSynthesisRecorder/issues/14
 - https://github.com/WICG/native-file-system/issues/97

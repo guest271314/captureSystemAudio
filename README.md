@@ -23,13 +23,13 @@ Capture audio monitor device with PulseAudio at Linux, stop the capture, then sa
 
 <h6>Optional</h6>
 
-`opus-tools` to convert WAV to Opus, `mkvtoolnix` to write Opus audio to Matroska or WebM file.
+`opus-tools`, `mkvtoolnix`, `ffmpeg` to convert WAV to Opus or different codec and write track to Matroska, WebM, or other media container supported at the system.
 
 <h5>Usage</h5>
 
 `$ ./notify.sh & chromium-browser --enable-experimental-web-platform-features && killall -q -9 inotifywait`
 
-At the browser capture system audio, e.g., from `window.speechSynthesis.speak()` or `ffplay blade_runner.web` or `<video>` playing in an HTML document, et al.   
+At the browser capture system audio, e.g., from `window.speechSynthesis.speak()` or `ffplay blade_runner.web` or `<video>` playing in an HTML document, et al., stop capture, then get the captured audio from local filesystem.
 
 ```
 async function captureSystemAudio() {

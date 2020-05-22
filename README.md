@@ -1,5 +1,5 @@
 # captureSystemAudio
-Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/PulseAudio/Examples#ALSA_monitor_source)) initiated from the browser using inotify-tools, File API, Native File System
+Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/PulseAudio/Examples#ALSA_monitor_source)) initiated from the browser using [inotify-tools](https://github.com/inotify-tools/inotify-tools), [File API](https://github.com/w3c/FileAPI), [Native File System](https://github.com/WICG/native-file-system)
 
 <h5>Background</h5>
 
@@ -14,6 +14,7 @@ Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/Pulse
 - https://github.com/w3c/mediacapture-main/issues/654
 - https://gist.github.com/guest271314/59406ad47a622d19b26f8a8c1e1bdfd5
 - https://github.com/guest271314/requestNativeScripts
+- https://github.com/web-platform-tests/wpt/issues/23084
 - https://github.com/w3c/mediacapture-screen-share/issues/140
 
 <h5>Synopsis</h5>

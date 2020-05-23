@@ -44,12 +44,18 @@ captureSystemAudio()
   await new Promise(resolve => setTimeout(resolve, 10000));
   // stop system audio capture
   await requestNativeScript.get('stop').arrayBuffer(); 
+  // await 50 milliseconds to avoid Native File System ERR_UPLOAD_FILE_CHANGED error
+  await new Promise(resolve => setTimeout(resolve, 50));
   const output = await requestNativeScript.get('dir').getFile('output.webm',{create:false});
   // resulting File object
   const file = await output.getFile(); 
-  // pass file.arrayBuffer() to new Blob to open underlying data in file
+  const type = file.type;
+  // store file as ArrayBuffer in memory
+  const ab = await file.arrayBuffer();
+  // remove file containing captured audio from local filesystem
+  await requestNativeScript.get('dir').removeEntry('output.webm');
   // do stuff with captured system audio as WAV, Opus, other codec and container the system supports
-  console.log(output, file, URL.createObjectURL(new Blob([await file.arrayBuffer()], {type:file.type})));
+  console.log(output, file, URL.createObjectURL(new Blob([ab], {type})));
 })
 .catch(e => console.error(e));
 ```

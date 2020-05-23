@@ -40,7 +40,7 @@ At the browser capture system audio, e.g., from `window.speechSynthesis.speak()`
 ```
 captureSystemAudio()
 .then(async requestNativeScript => {
-  // await 10 seconds
+  // capture 10 seconds of audio
   await new Promise(resolve => setTimeout(resolve, 10000));
   // stop system audio capture
   await requestNativeScript.get('stop').arrayBuffer(); 

@@ -7,6 +7,7 @@ Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/Pulse
 - https://lists.w3.org/Archives/Public/public-speech-api/2017Jun/0000.html
 - https://github.com/whatwg/html/issues/2823
 - https://github.com/guest271314/SpeechSynthesisRecorder/issues/14
+- https://github.com/WICG/native-file-system/issues/72
 - https://github.com/WICG/native-file-system/issues/97
 - https://github.com/w3c/mediacapture-main/issues/629
 - https://github.com/WICG/speech-api/issues/69

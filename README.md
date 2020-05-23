@@ -34,7 +34,7 @@ Open local files watched by `inotifywait` from [inotify-tools](https://github.co
 
 `$ ./notify.sh & chromium-browser --enable-experimental-web-platform-features && killall -q -9 inotifywait`
 
-At the browser capture system audio, e.g., from `window.speechSynthesis.speak()`, `ffplay blade_runner.mkv`, `<video>` playing in an HTML document, `mpv out.amr sound.caf`, by opening the local file `captureSystemAudio.txt`, stop capture by opening the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `chooseFileSystemEntries()`.
+At the browser capture system audio, e.g., from `window.speechSynthesis.speak()`, `ffplay blade_runner.mkv`, `<video>` playing in an HTML document, `mpv output.amr sound.caf`, by opening the local file `captureSystemAudio.txt`, stop capture by opening the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `chooseFileSystemEntries()`.
 
 ```
 captureSystemAudio()

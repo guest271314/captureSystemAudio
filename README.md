@@ -61,6 +61,7 @@ captureSystemAudio()
       };
       // function returning a Promise after default parameter 50, passed to setTimeout()
       requestNativeScript.get('wait')();
+      // handle DOMException: A requested file or directory could not be found at the time an operation was processed.
     } catch (e) {
       console.error(e);
     }

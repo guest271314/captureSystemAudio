@@ -19,6 +19,10 @@ Capture system audio (["What-U-Hear"](https://wiki.archlinux.org/index.php/Pulse
 - https://github.com/web-platform-tests/wpt/issues/23084
 - https://github.com/w3c/mediacapture-screen-share/issues/140
 
+<h5>Motivation</h5>
+
+Specify and implement web compatible system audio capture.
+
 <h5>Synopsis</h5>
 
 Open local files watched by `inotifywait` from [inotify-tools](https://github.com/inotify-tools/inotify-tools) to capture system audio monitor device at Linux, write output to a local file, stop system audio capture, get the resulting local file in the browser.

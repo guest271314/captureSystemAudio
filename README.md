@@ -50,6 +50,8 @@ captureSystemAudio()
   FILE_EXISTS: do {
     try {
       if (output = await requestNativeScript.get('dir').getFile('output.webm', {create:false})) {
+        // wait 50 milliseconds again here to avoid File size 0 reference collision 
+        // where getFile() executed exactly at creation, open of file at native code
         await requestNativeScript.get('wait')();
         break FILE_EXISTS;
       };

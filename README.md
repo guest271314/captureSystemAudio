@@ -41,12 +41,22 @@ At the browser capture system audio, e.g., from `window.speechSynthesis.speak()`
 captureSystemAudio()
 .then(async requestNativeScript => {
   // system audio is being captured, wait 10 seconds
-  await new Promise(resolve => setTimeout(resolve, 10000));
+  await requestNativeScript.get('wait')(10000);
   // stop system audio capture
   await requestNativeScript.get('stop').arrayBuffer(); 
-  // await 50 milliseconds to avoid Native File System ERR_UPLOAD_FILE_CHANGED error
-  await new Promise(resolve => setTimeout(resolve, 50));
-  const output = await requestNativeScript.get('dir').getFile('output.webm',{create:false});
+  // avoid Native File System ERR_UPLOAD_FILE_CHANGED error
+  let output;
+  FILE_EXISTS: do {
+    try {
+      if (output = await requestNativeScript.get('dir').getFile('output.webm', {create:false})) {
+        requestNativeScript.get('wait')(50);
+        break FILE_EXISTS;
+      };
+      requestNativeScript.get('wait')(100);
+    } catch (e) {
+      console.error(e);
+    }
+  } while (!output);
   // resulting File object
   const file = await output.getFile(); 
   const type = file.type;

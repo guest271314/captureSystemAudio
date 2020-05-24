@@ -61,6 +61,7 @@ captureSystemAudio()
   // resulting File object
   const file = await output.getFile(); 
   const type = file.type;
+  // read file to get underlying content instead of file metadata reference
   // store file as ArrayBuffer in memory, alternatively use file.stream() read/write File then remove
   const ab = await file.arrayBuffer();
   // remove file containing captured audio from local filesystem

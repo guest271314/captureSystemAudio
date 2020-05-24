@@ -62,6 +62,7 @@ captureSystemAudio()
     }
   } while (!output);
   // resulting File object
+  // potentially only file metadata reference, not reference to underlying content of file now
   const file = await output.getFile(); 
   const type = file.type;
   // read file to get underlying content instead of file metadata reference

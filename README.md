@@ -37,9 +37,13 @@ Open local files watched by `inotifywait` from [inotify-tools](https://github.co
 
 <h5>Usage</h5>
 
-`$ ./notify.sh & chromium-browser --enable-experimental-web-platform-features && killall -q -9 inotifywait`
+<h6>Command line, Chromium launcher</h6>
 
-To start system audio capture at the browser by open the local file `captureSystemAudio.txt`, to stop capture by open the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `chooseFileSystemEntries()`.
+Create a local folder in `/home/user/`, `localscripts` containing the files in this repository, `cd` to the folder and, or create executable pointing to the command
+
+`$HOME/notify.sh & chromium-browser --enable-experimental-web-platform-features <Chromium flags> && killall -q -9 inotifywait`
+
+To start system audio capture at the browser open the local file `captureSystemAudio.txt`, to stop capture by open the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `chooseFileSystemEntries()`.
 
 ```
 captureSystemAudio()

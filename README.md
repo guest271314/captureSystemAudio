@@ -49,10 +49,10 @@ captureSystemAudio()
   FILE_EXISTS: do {
     try {
       if (output = await requestNativeScript.get('dir').getFile('output.webm', {create:false})) {
-        requestNativeScript.get('wait')(50);
+        requestNativeScript.get('wait')();
         break FILE_EXISTS;
       };
-      requestNativeScript.get('wait')(100);
+      requestNativeScript.get('wait')();
     } catch (e) {
       console.error(e);
     }

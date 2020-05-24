@@ -1,7 +1,7 @@
 async function captureSystemAudio() {
   try {
     const requestNativeScript = new Map();
-    requestNativeScript.set('wait', ms => new Promise(resolve => setTimeout(resolve, ms)));
+    requestNativeScript.set('wait', (ms = 50) => new Promise(resolve => setTimeout(resolve, ms)));
     requestNativeScript.set('dir', await self.chooseFileSystemEntries({type:'openDirectory'}));
     requestNativeScript.set('status', await requestNativeScript.get('dir').requestPermission({writable:true}));
     // inotifywait does not fire events for getFile(), or file with no content, add space character to text file

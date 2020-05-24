@@ -33,7 +33,7 @@ Open local files watched by `inotifywait` from [inotify-tools](https://github.co
 
 <h6>Optional</h6>
 
-`opus-tools`, `mkvtoolnix`, `ffmpeg` or other native code application or to convert WAV to Opus or different codec and write track to Matroska, WebM, or other media container supported at the system.
+`opus-tools`, `mkvtoolnix`, `ffmpeg` or other native code application or to convert WAV to Opus or different codec and write track to Matroska, WebM, or other media container supported at the system. `opus-tools`, `mkvtoolnix` are included in the code by default to reduce resulting file size of captured stream by converting to Opus codec from audio from WAV, written to WebM container for usage with `MediaSource`. TODO: [Pipe captured audio to WebRTC `MediaStreamTrack` instead of local file](https://github.com/guest271314/captureSystemAudio/projects/1).
 
 <h5>Usage</h5>
 

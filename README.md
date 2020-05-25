@@ -27,7 +27,7 @@ Specify and implement web compatible system audio capture.
 
 The origin of and primary requirement is to capture output of `window.speechSynthesis.speak()`.
 
-The code can also be used to capture playback of media at native applications where the container and codec being played are not be supported at the browser by default, not supported as a video document when directly navigated to, or output from a native application supporting features not implemented at the browser, for example, `mpv output.amr sound.caf` ([Playing audio files in unsupported codecs through <audio> tag](https://stackoverflow.com/q/61502237)), `ffplay blade_runner.mkv` ([[Rethink] Support mkv|matroska|video/x-matroska in Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1422891), [Navigating to a Matroska file (.mkv) prompts user to download the file instead of loading the file at an HTML document and playing the file at HTML <video> element](https://bugs.chromium.org/p/chromium/issues/detail?id=999580)), `paplay output.wav` ([Navigating to audio/wav file prompts to open native application or save, plays file at HTMLMediaElement](https://bugzilla.mozilla.org/show_bug.cgi?id=1633647)), `espeak-ng -m '<p>A paragraph.</p><break time="2s"><s>A sentence<s>'`([Implement SSML parsing at SpeechSynthesisUtterance](https://bugs.chromium.org/p/chromium/issues/detail?id=795371), [Implement SSML parsing at SpeechSynthesisUtterance](https://bugzilla.mozilla.org/show_bug.cgi?id=1425523)).
+The code can also be used to capture playback of media at native applications where the container and codec being played are not be supported at the browser by default, not supported as a video document when directly navigated to, or output from a native application supporting features not implemented at the browser, for example, `mpv output.amr sound.caf`, `ffplay blade_runner.mkv`, `paplay output.wav`, `espeak-ng -m '<p>A paragraph.</p><break time="2s"><s>A sentence<s>'`.
 
 <h5>Synopsis</h5>
 
@@ -111,4 +111,8 @@ captureSystemAudio()
 - https://bugs.chromium.org/p/chromium/issues/detail?id=1074529
 - https://github.com/w3c/mediacapture-main/issues
 - https://github.com/w3c/mediacapture-screen-share/issues/140
-
+- https://stackoverflow.com/q/61502237
+- https://bugzilla.mozilla.org/show_bug.cgi?id=1422891
+- https://bugs.chromium.org/p/chromium/issues/detail?id=999580
+- https://bugs.chromium.org/p/chromium/issues/detail?id=795371
+- https://bugzilla.mozilla.org/show_bug.cgi?id=1425523

@@ -93,7 +93,7 @@ captureSystemAudio()
 ```
 
 
-<h6>References</h6>
+<h5>References</h5>
 
 - https://lists.w3.org/Archives/Public/public-speech-api/2017Jun/0000.html
 - https://github.com/whatwg/html/issues/2823

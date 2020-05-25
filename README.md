@@ -108,8 +108,10 @@ captureSystemAudio()
 - https://gist.github.com/guest271314/59406ad47a622d19b26f8a8c1e1bdfd5
 - https://github.com/guest271314/requestNativeScripts
 - https://github.com/web-platform-tests/wpt/issues/23084
+- https://bugs.chromium.org/p/chromium/issues/detail?id=1013881
+- https://bugs.chromium.org/p/chromium/issues/detail?id=1032815
 - https://bugs.chromium.org/p/chromium/issues/detail?id=1074529
-- https://github.com/w3c/mediacapture-main/issues
+- https://bugs.chromium.org/p/chromium/issues/detail?id=865799
 - https://github.com/w3c/mediacapture-screen-share/issues/140
 - https://stackoverflow.com/q/61502237
 - https://bugzilla.mozilla.org/show_bug.cgi?id=1422891

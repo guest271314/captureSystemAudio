@@ -60,7 +60,6 @@ captureSystemAudio()
   await requestNativeScript.get('stop').arrayBuffer(); 
   // avoid Native File System ERR_UPLOAD_FILE_CHANGED error
   let output;
-  // can be executed thousands of times
   FILE_EXISTS: do {
     try {
       if (output = await requestNativeScript.get('dir').getFile('output.webm', {create:false})) {
@@ -73,6 +72,7 @@ captureSystemAudio()
       await requestNativeScript.get('wait')();
       // handle DOMException: 
       // A requested file or directory could not be found at the time an operation was processed.
+      // can occur multiple times before getFile() gets metadata reference to file in local filesystem
     } catch (e) {
       console.error(e);
     }

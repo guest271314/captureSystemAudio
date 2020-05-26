@@ -19,7 +19,7 @@ Chrome on Windows does to support the user selecting audio capture at `getDispla
 
 _"MAY"_ being the key term in the language at _"the user agent MAY"_, indicating that implementation of capturing audio from _"a particular application, window, browser, the entire system audio or any combination thereof"_ is solely an individual choice of the _"user agent"_ to implement or not and thus can be considered null and void as to being a requirement for conformance with the specification if the _"user agent"_ decides to omit audio capture from the implementation of the specification. 
 
-Audio capture is described in broad context as to potential applicable coverage in general in that specification where the description of potential coverage can be narrowly interpreted by the term _"MAY"_ to mean not required to implement for conformance and thus not applicable solely at the _"user agent"_ discretion.
+Audio capture is described in broad context as to potential applicable coverage in general in the Screen Capture specification where that same description of potential coverage can be narrowly interpreted by the term _"MAY"_ to mean not required to implement for conformance and thus not applicable solely at the _"user agent"_ discretion.
 
 <h5>Motivation</h5>
 

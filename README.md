@@ -49,7 +49,7 @@ Create a local folder in `/home/user/`, `localscripts` containing the files in t
 
 `$HOME/notify.sh & chromium-browser --enable-experimental-web-platform-features <Chromium flags> && killall -q -9 inotifywait`
 
-which starts `inotifywait` watching two `.txt` files in the directory and launching Chromium.
+to start `inotifywait` watching two `.txt` files in the directory for open events and launches Chromium.
 
 To start system audio capture at the browser open the local file `captureSystemAudio.txt`, to stop capture by open the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `chooseFileSystemEntries()`.
 

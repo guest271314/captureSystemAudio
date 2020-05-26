@@ -39,7 +39,7 @@ Open local files watched by `inotifywait` from [inotify-tools](https://github.co
 
 <h6>Optional</h6>
 
-`opus-tools`, `mkvtoolnix` (both used by default to convert WAV to Opus and write Opus to WebM container to decrease resulting file size and be compatible with usage at `MediaSource`), `ffmpeg` or other native code application or to convert WAV to Opus or different codec and write track to Matroska, WebM, or other media container supported at the system. `opus-tools`, `mkvtoolnix` are included in the code by default to reduce resulting file size of captured stream by converting to Opus codec from audio from WAV, written to WebM container for usage with `MediaSource`.  
+`opus-tools`, `mkvtoolnix` (both used by default to convert WAV to Opus and write Opus to WebM container to decrease resulting file size and encoded to be compatible with usage at `MediaSource`), `ffmpeg` or other native code application or to convert WAV to Opus or different codec and write track to Matroska, WebM, or other media container supported at the system. `opus-tools`, `mkvtoolnix` are included in the code by default to reduce resulting file size of captured stream by converting to Opus codec from audio from WAV, written to WebM container for usage with `MediaSource`.  
 
 <h5>Usage</h5>
 

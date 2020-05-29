@@ -57,41 +57,25 @@ To start system audio capture at the browser open the local file `captureSystemA
 captureSystemAudio()
 .then(async requestNativeScript => {
   // system audio is being captured, wait 10 seconds
-  await requestNativeScript.get('wait')(10000);
+  await requestNativeScript.get('wait')((60*1000*10));
   // stop system audio capture
   await requestNativeScript.get('stop').arrayBuffer(); 
   // avoid Native File System ERR_UPLOAD_FILE_CHANGED error
-  let output;
-  FILE_EXISTS: do {
-    try {
-      if (output = await requestNativeScript.get('dir').getFile('output.webm', {create:false})) {
-        // wait 50 milliseconds again here to avoid File size 0 reference collision 
-        // where getFile() executed exactly at creation, open of file at native code
-        await requestNativeScript.get('wait')();
-        break FILE_EXISTS;
-      };
-      // function returning a Promise after default parameter 50, passed to setTimeout()
-      await requestNativeScript.get('wait')();
-      // handle DOMException: 
-      // A requested file or directory could not be found at the time an operation was processed.
-      // can occur multiple times before getFile() gets metadata reference to file in local filesystem
-    } catch (e) {
-      console.error(e);
-    }
-  } while (!output);
-  // resulting File object
-  // potentially only file metadata reference, not reference to underlying content of file now
-  const file = await output.getFile(); 
-  const type = file.type;
-  // read file to get underlying content instead of file metadata reference
-  // store file as ArrayBuffer in memory, alternatively use file.stream() read/write File then remove
-  const ab = await file.arrayBuffer();
-  // remove file containing captured audio from local filesystem
-  await requestNativeScript.get('dir').removeEntry('output.webm');
-  // do stuff with captured system audio as WAV, Opus, other codec and container the system supports
-  console.log(output, file, URL.createObjectURL(new Blob([ab], {type})));
+  await requestNativeScript.get('wait')(100);
+  try {
+    const output = await requestNativeScript.get('dir').getFile('output.webm', {create:false});
+    // resulting File object
+    const file = await output.getFile(); 
+    // do stuff with captured system audio as WAV, Opus, other codec and container the system supports
+    console.log(output, file, URL.createObjectURL(file));
+  } catch {
+      throw e;
+  }
 })
-.catch(e => console.error(e));
+.catch(e => {
+  console.error(e);
+  console.trace();
+});
 ```
 
 

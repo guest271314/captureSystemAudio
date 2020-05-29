@@ -56,8 +56,8 @@ To start system audio capture at the browser open the local file `captureSystemA
 ```
 captureSystemAudio()
 .then(async requestNativeScript => {
-  // system audio is being captured, wait 10 seconds
-  await requestNativeScript.get('wait')((60*1000*10));
+  // system audio is being captured, wait 10 minutes
+  await requestNativeScript.get('wait')(60*1000*10);
   // stop system audio capture
   await requestNativeScript.get('stop').arrayBuffer(); 
   // avoid Native File System ERR_UPLOAD_FILE_CHANGED error

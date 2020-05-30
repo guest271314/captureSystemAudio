@@ -68,7 +68,7 @@ captureSystemAudio()
     const file = await output.getFile(); 
     // do stuff with captured system audio as WAV, Opus, other codec and container the system supports
     console.log(output, file, URL.createObjectURL(file));
-  } catch {
+  } catch (e) {
       throw e;
   }
 })

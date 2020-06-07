@@ -53,11 +53,13 @@ to start `inotifywait` watching two `.txt` files in the directory for open event
 
 To start system audio capture at the browser open the local file `captureSystemAudio.txt`, to stop capture by open the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `chooseFileSystemEntries()`.
 
+<h6>Capture 50 minutes of audio to file</h6>
+
 ```
 captureSystemAudio()
 .then(async requestNativeScript => {
-  // system audio is being captured, wait 10 minutes
-  await requestNativeScript.get('wait')(60*1000*10);
+  // system audio is being captured, wait 50 minutes
+  await requestNativeScript.get('wait')(60 * 1000 * 50);
   // stop system audio capture
   await requestNativeScript.get('stop').arrayBuffer(); 
   // avoid Native File System ERR_UPLOAD_FILE_CHANGED error
@@ -77,6 +79,174 @@ captureSystemAudio()
   console.trace();
 });
 ```
+
+<h6>Stream file being written at local filesystem to `MediaSource` in "real-time"</h6>
+
+Update `captureSystemAudio.sh` to pipe `opusenc` to `ffmpeg` to write file while reading file at browser
+
+```
+#!/bin/bash
+captureSystemAudio() {
+  parec -v --raw -d alsa_output.pci-0000_00_1b.0.analog-stereo.monitor | opusenc --raw-rate 44100 - - | ffmpeg -y -i - -c:a copy $HOME/localscripts/output.webm
+}
+captureSystemAudio
+```
+
+at JavaScript
+
+```
+async function captureSystemAudio() {
+  try {
+    const requestNativeScript = new Map();
+    requestNativeScript.set(
+      'wait',
+      (ms = 50) => new Promise(resolve => setTimeout(resolve, ms))
+    );
+    requestNativeScript.set(
+      'dir',
+      await self.chooseFileSystemEntries({ type: 'open-directory' })
+    );
+    requestNativeScript.set(
+      'status',
+      await requestNativeScript.get('dir').requestPermission({ writable: true })
+    );
+    // inotifywait does not fire events for getFile(), or file with no content, add space character to text file
+    // FileSystemFileHandle.getFile() does not open file https://bugs.chromium.org/p/chromium/issues/detail?id=1084840
+    requestNativeScript.set(
+      'start',
+      await (
+        await requestNativeScript
+          .get('dir')
+          .getFile('captureSystemAudio.txt', { create: false })
+      ).getFile()
+    );
+    requestNativeScript.set(
+      'stop',
+      await (
+        await requestNativeScript
+          .get('dir')
+          .getFile('stopSystemAudioCapture.txt', { create: false })
+      ).getFile()
+    );
+    // Execute File.arrayBuffer() to read file for inotifywait to fire access or open event
+    // alternatively <input type="file">.click() does fire inotifywait open event
+    const executeNativeScript = await requestNativeScript
+      .get('start')
+      .arrayBuffer();
+    return requestNativeScript;
+  } catch (e) {
+    throw e;
+  }
+}
+captureSystemAudio()
+  .then(async requestNativeScript => {
+    const audio = new Audio();
+    audio.controls = true;
+    audio.ontimeupdate = _ => console.log(audio.currentTime);
+    audio.onloadedmetadata = _ => {
+      console.log(audio.duration, ms.duration);
+    };
+    document.body.appendChild(audio);
+    let ms = new MediaSource();
+    let sourceBuffer;
+    let domExceptionsCaught = 0;
+    ms.onsourceopen = e => {
+      sourceBuffer = ms.addSourceBuffer('audio/webm;codecs=opus');
+    };
+    audio.src = URL.createObjectURL(ms);
+    async function* fileStream(timeSlice = 1000 * 60) {
+      const { readable, writable } = new TransformStream();
+      const reader = readable.getReader();
+      let offset = 0;
+
+      let start = false;
+      let stop = false;
+      function readFileStream() {
+        // we can transfer, export readable: ReadableStream
+        return reader
+          .read()
+          .then(async function processFileStream({ value, done }) {
+            if (done) {
+              console.log(done);
+              ms.endOfStream();
+              return reader.closed;
+            }
+            await new Promise(resolve => {
+              sourceBuffer.addEventListener(
+                'updateend',
+                async _ => {
+                  try {
+                    if (sourceBuffer.buffered.length) {
+                      console.log(sourceBuffer.buffered.end(0));
+                      if (sourceBuffer.buffered.end(0) >= timeSlice / 1000) {
+                        stop = true;
+                      }
+                    }
+                  } catch (e) {
+                    console.error(e);
+                  } finally {
+                    resolve();
+                  }
+                },
+                {
+                  once: true,
+                }
+              );
+              console.log(value);
+              sourceBuffer.appendBuffer(value);
+            });
+            return reader.read().then(processFileStream);
+          });
+      }
+      while (true) {
+        try {
+          const output = await requestNativeScript
+            .get('dir')
+            .getFile('output.webm', { create: false });
+          const file = await output.getFile();
+          const slice = file.slice(offset, file.size);
+          // native application can have already bean writing file
+          // ffmpeg does not write file to filesystem until WebM file is 669 bytes
+          // wait until File.size > 0
+          if (slice.size > 0) {
+            slice.stream().pipeTo(writable, { preventClose: stop === false });
+          }
+
+          offset = file.size;
+          if (!start) {
+            start = true;
+            // do stuff with fileBits
+            readFileStream();
+          }
+          yield;
+        } catch (e) {
+          // handle DOMException: A requested file or directory could not be found at the time an operation was processed.
+          ++domExceptionsCaught;
+          console.error(e);
+          console.trace();
+        } finally {
+          if (stop === true) {
+            break;
+          }
+        }
+      }
+      try {
+        await requestNativeScript.get('stop').arrayBuffer();
+        await writable.close();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    for await (const fileBits of fileStream());
+    await requestNativeScript.get('dir').removeEntry('output.webm');
+
+    console.log('done streaming file', { domExceptionsCaught });
+  })
+  .catch(e => {
+    console.error(e);
+    console.trace();
+  });
+  ```
 
 
 <h5>References</h5>

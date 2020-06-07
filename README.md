@@ -80,7 +80,7 @@ captureSystemAudio()
 });
 ```
 
-<h5>Stream file being written at local filesystem to MediaSource, capture as MediaStream, record with Mediarecorder in "real-time", </h5>
+<h5>Stream file being written at local filesystem to MediaSource, capture as MediaStream, record with Mediarecorder in "real-time"</h5>
 
 Update `captureSystemAudio.sh` to pipe `opusenc` to `ffmpeg` to write file while reading file at browser
 

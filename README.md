@@ -82,7 +82,7 @@ captureSystemAudio()
 
 <h5>Stream file being written at local filesystem to MediaSource, capture as MediaStream, record with Mediarecorder in "real-time"</h5>
 
-Update `captureSystemAudio.sh` to pipe `opusenc` to `ffmpeg` to write file while reading file at browser
+Adjust shell script `captureSystemAudio.sh` to pipe `opusenc` to `ffmpeg` to write file while reading file at browser
 
 ```
 #!/bin/bash
@@ -93,7 +93,7 @@ captureSystemAudio() {
 captureSystemAudio
 ```
 
-at JavaScript
+at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` seconds, minutes, hours of audio
 
 ```
 captureSystemAudio()

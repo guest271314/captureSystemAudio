@@ -106,8 +106,9 @@ captureSystemAudio()
       mediaStream = audio.captureStream();
       mediaRecorder = new MediaRecorder(mediaStream);
       mediaRecorder.start();
-      mediaRecorder.ondataavailable = e =>
+      mediaRecorder.ondataavailable = e => {
         console.log(URL.createObjectURL(e.data));
+      };
     };
     audio.onended = _ => {
       mediaRecorder.stop();
@@ -168,7 +169,6 @@ captureSystemAudio()
           if (slice.size > 0) {
             slice.stream().pipeTo(writable, { preventClose: stop === false });
           }
-
           offset = file.size;
           if (!start) {
             start = true;

@@ -195,8 +195,8 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
         console.error(e);
       }
     }
-    // capture 2  minutes of system audio output
-    for await (const fileBits of fileStream(120));
+    // capture 2 minutes of system audio output
+    for await (const fileBits of fileStream(60 * 2));
     await requestNativeScript.get('dir').removeEntry('output.webm');
     console.log('done streaming file', { domExceptionsCaught });
   })

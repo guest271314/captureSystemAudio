@@ -80,7 +80,7 @@ captureSystemAudio()
 });
 ```
 
-<h5>Stream file being written at local filesystem to MediaSource in "real-time"</h5>
+<h5>Stream file being written at local filesystem to MediaSource, capture as MediaStream, record with Mediarecorder in "real-time", </h5>
 
 Update `captureSystemAudio.sh` to pipe `opusenc` to `ffmpeg` to write file while reading file at browser
 
@@ -98,10 +98,19 @@ at JavaScript
   captureSystemAudio()
   .then(async requestNativeScript => {
     const audio = new Audio();
-    audio.controls = true;
+    let mediaStream, mediaRecorder;
+    audio.controls = audio.autoplay = audio.muted = true;
     audio.ontimeupdate = _ => console.log(audio.currentTime);
     audio.onloadedmetadata = _ => {
       console.log(audio.duration, ms.duration);
+      mediaStream = audio.captureStream();
+      mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorder.start();
+      mediaRecorder.ondataavailable = e =>
+        console.log(URL.createObjectURL(e.data));
+    };
+    audio.onended = _ => {
+      mediaRecorder.stop();
     };
     document.body.appendChild(audio);
     let ms = new MediaSource();
@@ -115,6 +124,7 @@ at JavaScript
       const { readable, writable } = new TransformStream();
       const reader = readable.getReader();
       let offset = 0;
+
       let start = false;
       let stop = false;
       function readFileStream() {
@@ -167,6 +177,7 @@ at JavaScript
           if (slice.size > 0) {
             slice.stream().pipeTo(writable, { preventClose: stop === false });
           }
+
           offset = file.size;
           if (!start) {
             start = true;
@@ -194,6 +205,7 @@ at JavaScript
     }
     for await (const fileBits of fileStream());
     await requestNativeScript.get('dir').removeEntry('output.webm');
+
     console.log('done streaming file', { domExceptionsCaught });
   })
   .catch(e => {

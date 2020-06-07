@@ -105,7 +105,7 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
       console.log(audio.duration, ms.duration);
       mediaStream = audio.captureStream();
       mediaRecorder = new MediaRecorder(mediaStream, {
-        mimeType: 'video/webm;codecs=opus',
+        mimeType: 'audio/webm;codecs=opus',
         audioBitrateMode: 'cbr'
       });
       mediaRecorder.start();

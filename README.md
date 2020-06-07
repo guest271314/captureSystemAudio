@@ -87,7 +87,8 @@ Update `captureSystemAudio.sh` to pipe `opusenc` to `ffmpeg` to write file while
 ```
 #!/bin/bash
 captureSystemAudio() {
-  parec -v --raw -d alsa_output.pci-0000_00_1b.0.analog-stereo.monitor | opusenc --raw-rate 44100 - - | ffmpeg -y -i - -c:a copy $HOME/localscripts/output.webm
+  parec -v --raw -d alsa_output.pci-0000_00_1b.0.analog-stereo.monitor | opusenc --raw-rate 44100 - - \
+    | ffmpeg -y -i - -c:a copy $HOME/localscripts/output.webm
 }
 captureSystemAudio
 ```
@@ -95,12 +96,11 @@ captureSystemAudio
 at JavaScript
 
 ```
-  captureSystemAudio()
+captureSystemAudio()
   .then(async requestNativeScript => {
     const audio = new Audio();
     let mediaStream, mediaRecorder;
     audio.controls = audio.autoplay = audio.muted = true;
-    audio.ontimeupdate = _ => console.log(audio.currentTime);
     audio.onloadedmetadata = _ => {
       console.log(audio.duration, ms.duration);
       mediaStream = audio.captureStream();
@@ -116,17 +116,25 @@ at JavaScript
     let ms = new MediaSource();
     let sourceBuffer;
     let domExceptionsCaught = 0;
+    const timeSlice = 60;
     ms.onsourceopen = e => {
       sourceBuffer = ms.addSourceBuffer('audio/webm;codecs=opus');
     };
     audio.src = URL.createObjectURL(ms);
-    async function* fileStream(timeSlice = 1000 * 60) {
+
+    async function* fileStream(timeSlice = 60) {
       const { readable, writable } = new TransformStream();
       const reader = readable.getReader();
       let offset = 0;
-
       let start = false;
       let stop = false;
+      audio.ontimeupdate = _ => {
+        if (audio.currentTime >= timeSlice) {
+          stop = true;
+          audio.ontimeupdate = null;
+        }
+        console.log(audio.currentTime);
+      };
       function readFileStream() {
         // we can transfer, export readable: ReadableStream
         return reader
@@ -138,26 +146,9 @@ at JavaScript
               return reader.closed;
             }
             await new Promise(resolve => {
-              sourceBuffer.addEventListener(
-                'updateend',
-                async _ => {
-                  try {
-                    if (sourceBuffer.buffered.length) {
-                      console.log(sourceBuffer.buffered.end(0));
-                      if (sourceBuffer.buffered.end(0) >= timeSlice / 1000) {
-                        stop = true;
-                      }
-                    }
-                  } catch (e) {
-                    console.error(e);
-                  } finally {
-                    resolve();
-                  }
-                },
-                {
-                  once: true,
-                }
-              );
+              sourceBuffer.addEventListener('updateend', resolve, {
+                once: true,
+              });
               console.log(value);
               sourceBuffer.appendBuffer(value);
             });
@@ -186,7 +177,8 @@ at JavaScript
           }
           yield;
         } catch (e) {
-          // handle DOMException: A requested file or directory could not be found at the time an operation was processed.
+          // handle DOMException: 
+          // A requested file or directory could not be found at the time an operation was processed.
           ++domExceptionsCaught;
           console.error(e);
           console.trace();

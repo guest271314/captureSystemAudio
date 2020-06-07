@@ -96,7 +96,7 @@ captureSystemAudio
 at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` seconds, minutes, hours of audio
 
 ```
-captureSystemAudio()
+  captureSystemAudio()
   .then(async requestNativeScript => {
     const audio = new Audio();
     let mediaStream, mediaRecorder;
@@ -121,7 +121,7 @@ captureSystemAudio()
       sourceBuffer = ms.addSourceBuffer('audio/webm;codecs=opus');
     };
     audio.src = URL.createObjectURL(ms);
-    async function* fileStream(timeSlice = 60) {
+    async function* fileStream(timeSlice = 5) {
       const { readable, writable } = new TransformStream();
       // do stuff with readable: ReadableStream, e.g., transfer; export 
       const reader = readable.getReader();
@@ -195,7 +195,8 @@ captureSystemAudio()
         console.error(e);
       }
     }
-    for await (const fileBits of fileStream());
+    // capture 2  minutes of system audio output
+    for await (const fileBits of fileStream(120));
     await requestNativeScript.get('dir').removeEntry('output.webm');
     console.log('done streaming file', { domExceptionsCaught });
   })

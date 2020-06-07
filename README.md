@@ -129,7 +129,6 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
       let start = false;
       let stop = false;
       audio.ontimeupdate = _ => {
-        // capture 60 seconds of sytem audio output
         if (audio.currentTime >= timeSlice) {
           stop = true;
           audio.ontimeupdate = null;

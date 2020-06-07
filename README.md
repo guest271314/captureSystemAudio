@@ -93,7 +93,7 @@ captureSystemAudio() {
 captureSystemAudio
 ```
 
-at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` seconds, minutes, hours of audio
+at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` seconds, minutes, hours, or, given unlimited computational resources, an infinite stream of system audio output
 
 ```
   captureSystemAudio()

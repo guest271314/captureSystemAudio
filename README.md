@@ -152,7 +152,7 @@ captureSystemAudio()
               console.log(value);
               sourceBuffer.appendBuffer(value);
             });
-            return reader.read().then(processFileStream);
+            return reader.read().then(processFileStream).catch(e => {throw e;});
           });
       }
       while (true) {
@@ -173,7 +173,8 @@ captureSystemAudio()
           if (!start) {
             start = true;
             // do stuff with fileBits
-            readFileStream();
+            readFileStream()
+            .catch(e => {throw e;});
           }
           yield;
         } catch (e) {

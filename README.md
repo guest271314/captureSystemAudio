@@ -104,7 +104,10 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
     audio.onloadedmetadata = _ => {
       console.log(audio.duration, ms.duration);
       mediaStream = audio.captureStream();
-      mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorder = new MediaRecorder(mediaStream, {
+        mimeType: 'video/webm;codecs=opus',
+        audioBitrateMode: 'cbr'
+      });
       mediaRecorder.start();
       mediaRecorder.ondataavailable = e => {
         console.log(URL.createObjectURL(e.data));
@@ -123,7 +126,7 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
     audio.src = URL.createObjectURL(ms);
     async function* fileStream(timeSlice = 5) {
       const { readable, writable } = new TransformStream();
-      // do stuff with readable: ReadableStream, e.g., transfer; export 
+      // do stuff with readable: ReadableStream, e.g., transfer; export
       const reader = readable.getReader();
       let offset = 0;
       let start = false;
@@ -151,7 +154,12 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
               console.log(value);
               sourceBuffer.appendBuffer(value);
             });
-            return reader.read().then(processFileStream).catch(e => {throw e;});
+            return reader
+              .read()
+              .then(processFileStream)
+              .catch(e => {
+                throw e;
+              });
           });
       }
       while (true) {
@@ -171,12 +179,13 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
           if (!start) {
             start = true;
             // do stuff with fileBits
-            readFileStream()
-            .catch(e => {throw e;});
+            readFileStream().catch(e => {
+              throw e;
+            });
           }
           yield;
         } catch (e) {
-          // handle DOMException: 
+          // handle DOMException:
           // A requested file or directory could not be found at the time an operation was processed.
           // thousands of exceptions can be caught here before ffmpeg writes 669 bytes to local file
           ++domExceptionsCaught;

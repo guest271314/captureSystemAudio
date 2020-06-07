@@ -158,7 +158,6 @@ captureSystemAudio()
       const { readable, writable } = new TransformStream();
       const reader = readable.getReader();
       let offset = 0;
-
       let start = false;
       let stop = false;
       function readFileStream() {
@@ -211,7 +210,6 @@ captureSystemAudio()
           if (slice.size > 0) {
             slice.stream().pipeTo(writable, { preventClose: stop === false });
           }
-
           offset = file.size;
           if (!start) {
             start = true;
@@ -239,7 +237,6 @@ captureSystemAudio()
     }
     for await (const fileBits of fileStream());
     await requestNativeScript.get('dir').removeEntry('output.webm');
-
     console.log('done streaming file', { domExceptionsCaught });
   })
   .catch(e => {

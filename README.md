@@ -117,12 +117,10 @@ captureSystemAudio()
     let ms = new MediaSource();
     let sourceBuffer;
     let domExceptionsCaught = 0;
-    const timeSlice = 60;
     ms.onsourceopen = e => {
       sourceBuffer = ms.addSourceBuffer('audio/webm;codecs=opus');
     };
     audio.src = URL.createObjectURL(ms);
-
     async function* fileStream(timeSlice = 60) {
       const { readable, writable } = new TransformStream();
       // do stuff with readable: ReadableStream, e.g., transfer; export 
@@ -131,6 +129,7 @@ captureSystemAudio()
       let start = false;
       let stop = false;
       audio.ontimeupdate = _ => {
+        // capture 60 seconds of sytem audio output
         if (audio.currentTime >= timeSlice) {
           stop = true;
           audio.ontimeupdate = null;
@@ -198,7 +197,6 @@ captureSystemAudio()
     }
     for await (const fileBits of fileStream());
     await requestNativeScript.get('dir').removeEntry('output.webm');
-
     console.log('done streaming file', { domExceptionsCaught });
   })
   .catch(e => {

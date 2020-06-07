@@ -124,6 +124,7 @@ captureSystemAudio()
 
     async function* fileStream(timeSlice = 60) {
       const { readable, writable } = new TransformStream();
+      // do stuff with readable: ReadableStream, e.g., transfer; export 
       const reader = readable.getReader();
       let offset = 0;
       let start = false;
@@ -136,7 +137,6 @@ captureSystemAudio()
         console.log(audio.currentTime);
       };
       function readFileStream() {
-        // we can transfer, export readable: ReadableStream
         return reader
           .read()
           .then(async function processFileStream({ value, done }) {

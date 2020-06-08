@@ -11,7 +11,7 @@ Firefox supports selection of `Monitor of <device>` at `getUserMedia()` at Linux
 
 Firefox and Chromium do not support system or application capture of system audio at `getDisplayMedia({video: true, audio: true})` at Linux.
 
-Chrome on Windows does to support the user selecting audio capture at `getDisplayMedia({video: true, audio: true})` UI prompt.
+Chrome on Windows evidently does to support the user selecting audio capture at `getDisplayMedia({video: true, audio: true})` UI prompt.
 
 `getUserMedia()` and `getDisplayMedia()` specifications do not explicitly state the user agent "MUST" provide the user with the option to capture application or system audio. From Screen Capture https://w3c.github.io/mediacapture-screen-share/ 
 

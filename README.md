@@ -170,7 +170,7 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
           const file = await output.getFile();
           const slice = file.slice(offset, file.size);
           // native application could already be writing file
-          // ffmpeg does not write file to filesystem until WebM file is 669 bytes
+          // File can be 669 bytes before written to local filesystem by ffmpeg
           // wait until File.size > 0
           if (slice.size > 0) {
             slice.stream().pipeTo(writable, { preventClose: stop === false });

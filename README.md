@@ -45,7 +45,7 @@ Open local files watched by `inotifywait` from [inotify-tools](https://github.co
 
 <h6>Command line, Chromium launcher</h6>
 
-Create a local folder in `/home/user/`, `localscripts` containing the files in this repository, run the command
+Create a local folder in `/home/user/localscripts` containing the files in this repository, run the command
 
 `$HOME/notify.sh & chromium-browser --enable-experimental-web-platform-features && killall -q -9 inotifywait`
 

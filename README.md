@@ -187,7 +187,6 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
         } catch (e) {
           // handle DOMException:
           // A requested file or directory could not be found at the time an operation was processed.
-          // thousands of exceptions can be caught here before ffmpeg writes N bytes to local file
           ++domExceptionsCaught;
           console.error(e);
           console.trace();

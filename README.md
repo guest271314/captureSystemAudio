@@ -251,8 +251,6 @@ async function chromiumLinuxSetAudioCaptureDevice() {
           .getFile('closepavucontrol.txt', { create: false })
       ).getFile()
     );
-    // Execute File.arrayBuffer() to read file for inotifywait to fire access or open event
-    // alternatively <input type="file">.click() does fire inotifywait open event
     
     const executeNativeScript = await requestNativeScript
       .get('start')

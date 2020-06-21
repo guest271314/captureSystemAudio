@@ -303,3 +303,4 @@ chromiumLinuxSetAudioCaptureDevice()
 - https://bugs.chromium.org/p/chromium/issues/detail?id=999580
 - https://bugs.chromium.org/p/chromium/issues/detail?id=795371
 - https://bugzilla.mozilla.org/show_bug.cgi?id=1425523
+- https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/issues/82

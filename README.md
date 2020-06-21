@@ -213,6 +213,68 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
     console.trace();
   });
   ```
+  
+<h5>Launch pavucontrol to select audio device</h5>
+
+Launch [`pavucontrol`](https://gitlab.freedesktop.org/pulseaudio/pavucontrol) `Recording` tab after `getUserMedia({audio: true})` for capability to change the audio device, e.g., from default microphone `"Built-in Audio Analog Stereo"` to `"Monitor of Built-in Audio Analog Stereo"` ("What-U-Hear") being captured dynamically
+
+```
+async function chromiumLinuxSetAudioCaptureDevice() {
+  try {
+    const requestNativeScript = new Map();
+    const mediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
+    requestNativeScript.set(
+      'wait',
+      (ms = 50) => new Promise(resolve => setTimeout(resolve, ms))
+    );
+    requestNativeScript.set(
+      'dir',
+      await self.chooseFileSystemEntries({ type: 'open-directory' })
+    );
+    requestNativeScript.set(
+      'status',
+      await requestNativeScript.get('dir').requestPermission({ writable: true })
+    );
+    requestNativeScript.set(
+      'start',
+      await (
+        await requestNativeScript
+          .get('dir')
+          .getFile('openpavucontrol.txt', { create: false })
+      ).getFile()
+    );
+    requestNativeScript.set(
+      'stop',
+      await (
+        await requestNativeScript
+          .get('dir')
+          .getFile('closepavucontrol.txt', { create: false })
+      ).getFile()
+    );
+    // Execute File.arrayBuffer() to read file for inotifywait to fire access or open event
+    // alternatively <input type="file">.click() does fire inotifywait open event
+    
+    const executeNativeScript = await requestNativeScript
+      .get('start')
+      .arrayBuffer();
+    return {requestNativeScript, mediaStream};
+  } catch (e) {
+    throw e;
+  }
+}
+chromiumLinuxSetAudioCaptureDevice()
+.then(({
+  requestNativeScript, mediaStream
+}) => {
+  // do stuff with MediaStream, MediaStreamTrack
+  // after selecting specific device at pavucontrol Recording tab
+  console.log(mediaStream, requestNativeScript);
+  const recorder = new MediaRecorder(mediaStream);
+  recorder.start();
+  recorder.ondataavailable = e => console.log(URL.createObjectURL(e.data));
+  setTimeout(_ => recorder.stop(), 30000);
+});
+```
 
 
 <h5>References</h5>

@@ -231,7 +231,7 @@ async function chromiumLinuxSetAudioCaptureDevice() {
     );
     requestNativeScript.set(
       'dir',
-      await self.chooseFileSystemEntries({ type: 'open-directory' })
+      await self.showDirectoryPicker()
     );
     requestNativeScript.set(
       'status',

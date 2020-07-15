@@ -51,7 +51,7 @@ Create a local folder in `/home/user/localscripts` containing the files in this 
 
 to start `inotifywait` watching two `.txt` files in the directory for open events and launches Chromium.
 
-To start system audio capture at the browser open the local file `captureSystemAudio.txt`, to stop capture by open the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `chooseFileSystemEntries()`.
+To start system audio capture at the browser open the local file `captureSystemAudio.txt`, to stop capture by open the local file `stopSystemAudioCapture.txt`, where each file contains one space character, then get the captured audio from local filesystem using `<input type="file">` or where implemented Native File System `showDirectoryPicker()`.
 
 <h5>Capture 50 minutes of audio to file</h5>
 

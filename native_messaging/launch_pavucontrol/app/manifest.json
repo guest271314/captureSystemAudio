@@ -1,0 +1,20 @@
+{
+  // Extension ID: baafhjgljfdjkcoblonhopgilmmafmab
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoxvaSKgy1YBd62L426pt+xzjsAXUcgu7RgO3j4ZS+FUEg/UT51Vxq2iAn8xtHT+uaAFqsdCaJQ5+nDXC7T0b7cyry6SJewnBjdmSNaXJS6V7Vz1VJgfPt3zEx5fBNf3Oi6AozH3MBC9RM55rJ+0e74liTYCsbo9WPluAxaB051JtvG0ezQwfTCGlPlTKsqstFUOlDRC+ZtnXPwZzP7EgglkPUGNRHntcIh4Zqc6B5nM0JaFkSDGsyoHzhvdHT0n2of5cOyUMBA7mJg2yCiqGw5C0wrBli+yJNM4jsjR73yBy7KyAPN12qFQU+WczRumcfk0qlFj8UA6wusdqbhHTSwIDAQAB",
+  "manifest_version": 2,
+  "name"            : "launch_pavucontrol",
+  "version"         : "1.0",
+  "description"     : "Launch pavucontrol for ability to dynamically set and change audio device being captured by getUserMedia({audio:true})",
+  "background": {
+    "persistent": true,
+    "scripts": [
+      "background.js"
+    ]
+  },
+   "browser_action": {
+     "default_title": "launch pavucontrol"
+  },
+  "permissions": [
+    "nativeMessaging"
+  ]
+}

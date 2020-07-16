@@ -287,7 +287,13 @@ $ chmod u+x launch_pavucontrol.sh`
 
 navigate to `chrome://extensions`, set `Developer mode` to on, click `Load unpacked` and select `app` folder.
 
-Pin the app badge to the extension toolbar (it might be necessary to enable Extentions Toolbar Menu at `chrome://flags/#extensions-toolbar-menu`). When the  browser action of clicking the icon occurs `pavucontrol` will be launched. When no audio  device is being captured the `Recording` tab will be empty. When `navigator.getUserMedia({audio: true})` is executed a list populate the `Recording` tab where the user can check a device that will be dynamically set as the device being captured by  `getUserMedia({audio: true})`
+Pin the app badge to the extension toolbar (it might be necessary to enable Extentions Toolbar Menu at `chrome://flags/#extensions-toolbar-menu`). When the  browser action of clicking the icon occurs `pavucontrol` (or, if installed and set in `launch_pavucontrol.sh`, `pavucontrol-qt`) will be launched. When no audio  device is being captured the `Recording` tab will be empty. When `navigator.getUserMedia({audio: true})` is executed a list populate the `Recording` tab where the user can check a device that will be dynamically set as the device being captured by  `getUserMedia({audio: true})`, using `pavucontrol-qt`
+
+<img src="./launch_pavucontrol_native_messaging.png" alt="launch pavucontrol">
+
+<img src="./launch_pavucontrol_native_messaging_1.png" alt="pavucontrol before getUserMedia({audio: true})">
+
+<img src="./launch_pavucontrol_native_messaging_2.png" alt="pavucontrol after getUserMedia({audio: true}), dynamic audio device capture selection">
 
 
 

@@ -276,6 +276,21 @@ chromiumLinuxSetAudioCaptureDevice()
 });
 ```
 
+<h5>Native Messaging</h5>
+
+To launch `pavucontrol` or `pavucontrol-qt` using Native Messaging open a terminal, `cd` to `native_messaging/host` folder, then run the commands
+
+```
+$ cp launch_pavucontrol.json ~/.config/chromium/NativeMessagingHosts # Chromium, Chrome user configuration folder at Linux
+$ chmod u+x launch_pavucontrol.sh`
+```
+
+navigate to `chrome://extensions`, set `Developer mode` to on, click `Load unpacked` and select `app` folder.
+
+Pin the app badge to the extension toolbar (it might be necessary to enable Extentions Toolbar Menu at `chrome://flags/#extensions-toolbar-menu`). When the  browser action of clicking the icon occurs `pavucontrol` will be launched. When no audio  device is being captured the `Recording` tab will be empty. When `navigator.getUserMedia({audio: true})` is executed a list populate the `Recording` tab where the user can check a device that will be dynamically set as the device being captured by  `getUserMedia({audio: true})`
+
+
+
 
 <h5>References</h5>
 

@@ -278,7 +278,7 @@ chromiumLinuxSetAudioCaptureDevice()
 
 <h5>Native Messaging</h5>
 
-To launch `pavucontrol` or `pavucontrol-qt` using Native Messaging open a terminal, `cd` to `native_messaging/host` folder, then run the commands
+To launch `pavucontrol` or `pavucontrol-qt` using Native Messaging open a terminal, `cd` to `native_messaging/host` folder, open `launch_pavucontrol.json` and substitute aboslute path to `launch_pavucontrol.sh` for `"HOST_PATH"`, then run the commands
 
 ```
 $ cp launch_pavucontrol.json ~/.config/chromium/NativeMessagingHosts # Chromium, Chrome user configuration folder at Linux

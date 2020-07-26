@@ -216,7 +216,7 @@ at JavaScript use `HTMLMediaElement`, `MediaSource` to capture `timeSlice` secon
   
 <h5>Launch pavucontrol to select audio device</h5>
 
-Where it is currently not possible to select `"Monitor of Built-in Audio Analog Stereo"` at Chromium or Chrome implementation of media capture by default, launch [`pavucontrol`](https://gitlab.freedesktop.org/pulseaudio/pavucontrol) `Recording` tab using `pavucontrol -t 2` after `getUserMedia({audio: true})` for capability to change the audio device being captured dynamically, e.g., from default microphone `"Built-in Audio Analog Stereo"` to `"Monitor of Built-in Audio Analog Stereo"` ("What-U-Hear") 
+Where it is currently not possible to select `"Monitor of Built-in Audio Analog Stereo"` at Chromium implementation of media capture by default, launch [`pavucontrol`](https://gitlab.freedesktop.org/pulseaudio/pavucontrol) `Recording` tab using `pavucontrol -t 2` after `getUserMedia({audio: true})` for capability to change the audio device being captured dynamically, e.g., from default microphone `"Built-in Audio Analog Stereo"` to `"Monitor of Built-in Audio Analog Stereo"` ("What-U-Hear") 
 
 <img src="./pavucontrol.png" alt="pavucontrol audio device selection">
 

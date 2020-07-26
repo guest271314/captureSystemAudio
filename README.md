@@ -282,7 +282,7 @@ To launch `pavucontrol` or `pavucontrol-qt` using Native Messaging open a termin
 
 ```
 $ cp launch_pavucontrol.json ~/.config/chromium/NativeMessagingHosts # Chromium, Chrome user configuration folder at Linux
-$ chmod u+x launch_pavucontrol.sh`
+$ chmod u+x launch_pavucontrol.sh
 ```
 
 navigate to `chrome://extensions`, set `Developer mode` to on, click `Load unpacked` and select `app` folder.

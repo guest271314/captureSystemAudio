@@ -329,43 +329,7 @@ onclick = async _ => {
       track.onmute = track.onunmute = track.onended = e => console.log(e);
       console.log(recorder, stream, track);
       recorder.ondataavailable = async e => {
-        // set duration of WebM file output by MediaRecorder at Chromium
-        const request = await fetch(
-          'https://gist.githubusercontent.com/guest271314/252b64b3f06593434fae209b3dc4303f'
-        + '/raw/6baca0c1e338824f24a9935a98a4030b01fc183e/ts-ebml-min.js'
-        );
-        const text = await request.blob();
-        const script = document.createElement('script');
-        document.body.appendChild(script);
-        script.src = URL.createObjectURL(
-          new Blob([text], { type: 'text/javascript' })
-        );
-        script.onload = async _ => {
-          const { Decoder, Encoder, tools, Reader } = require('ts-ebml');
-          const injectMetadata = async blob => {
-            const decoder = new Decoder();
-            const reader = new Reader();
-            reader.logging = false;
-            reader.drop_default_duration = false;
-            const buffer = await blob.arrayBuffer();
-            const elms = decoder.decode(buffer);
-            elms.forEach(elm => reader.read(elm));
-            reader.stop();
-            const refinedMetadataBuf = tools.makeMetadataSeekable(
-              reader.metadatas,
-              reader.duration,
-              reader.cues
-            );
-            const body = buffer.slice(reader.metadataSize);
-            const result = new Blob([refinedMetadataBuf, body], {
-              type: blob.type,
-            });
-            return result;
-          };
-          console.table({
-            blobURL: URL.createObjectURL(await injectMetadata(e.data)),
-          });
-        };
+        console.log(e.data);
       };
     })
     .catch(console.error);

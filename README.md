@@ -299,13 +299,21 @@ Pin the app badge to the extension toolbar (it might be necessary to enable Exte
 
 <h6>file_stream</h6>
 
-Capture system audio output to local file, read file during write, write file data to shared memory, read shared memory in `AudioWorkletProcessor`, stream captured output to a connected `MediaStreamTrack`.
+Set permissions for `.js`, `.sh` files in `host` folder to executable. 
 
-Set permissions for `.js`, `.sh` files in `host` folder to executable. Click `Load unpacked` at chrome://extensions, select `app` folder. Copy `native_messaging_file_stream.json` to `~/.config/chromium/NativeMessagingHosts`. To set permission to communicate with Native Messaging on a web page run `app/set_externally_connectable.js` at `console`, select `app` directory to update `manifest.json`, then reload `background.js` at extensions tab GUI or using chrom.runtime.reload()` at DevTools chrome-extension URL.
+Set `"HOST_PATH"` in `host/native_messaging_file_stream.json` to absolute path to `host/native_messaging_file_stream.js`.
+
+Copy `native_messaging_file_stream.json` to `~/.config/chromium/NativeMessagingHosts`. 
+
+Click `Load unpacked` at `chrome://extensions`, select `app` folder. 
+
+To set permission to communicate with Native Messaging on a web page run `app/set_externally_connectable.js` at `console`, select `app` directory to update `app/manifest.json`, then reload `background.js` at extensions tab GUI or using `chrom.runtime.reload()` at DevTools chrome-extension URL.
+
 
 <b>Usage</b>
 
 Select `app` directory at Native File System prompts for read and write access to local filesystem where raw PCM of system audio output is written to a file using  `parec` while reading the file during the write using Native File System, storing the data in shared memory, parsing input data in `AudioWorklet` connected to `MediaStreamTrack` outputting the captured system audio. 
+
 ```
 onclick = async _ => {
   onclick = null;

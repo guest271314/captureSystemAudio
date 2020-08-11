@@ -1,0 +1,28 @@
+{
+  // Extension ID: lmkllhfhgnmbcmhdagfhejkpicehnida
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwAJZLXaixT4fSCDtPqafdYN1I03ZEsGPsdZHQ9GsI2u4xSak66MSswldVEo7micSeuvJeuxK9FPmVQkcV4DgQIZgPC8+ZnSvwe6VaNqp7giuaO0+2Awx8ZEED1Z9FEek8ilD+l3wpobZLejT2s1iARNH16TD5xnluQVC8M6UkeJ56fn9Uhm5LSO8OSsvbwuz6y0dz31g1/AmIhS/fZKCVqjf0OTT8gxscw/960ho6PU98MMrs9UPcPQUmWdzNlrEdGKnOYOw2b/LAAlzWfWHgZqJ6bMjyWG8orLZimwaMWAHHpaf5LbnDEGUUP6nGGu3WTiup9x8B3Xa40E68NBr8QIDAQAB",
+  "name": "native_messaging_file_stream",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "Capture system audio",
+  "icons": {},
+  "permissions": [
+    "nativeMessaging"
+  ],
+  "app": {
+    "background": {
+      "scripts": [
+        "background.js"
+      ]
+    }
+  },
+  "externally_connectable": {
+    "matches": [
+      "https://example.com/*"
+    ],
+    "ids": [
+      "lmkllhfhgnmbcmhdagfhejkpicehnida"
+    ]
+  },
+  "author": "guest271314"
+}

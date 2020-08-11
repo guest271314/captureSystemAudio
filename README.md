@@ -278,6 +278,8 @@ chromiumLinuxSetAudioCaptureDevice()
 
 <h5>Native Messaging</h5>
 
+<h6>launch_pavucontrol</h6>
+
 To launch `pavucontrol` or `pavucontrol-qt` using Native Messaging open a terminal, `cd` to `native_messaging/host` folder, open `launch_pavucontrol.json` and substitute aboslute path to `launch_pavucontrol.sh` for `"HOST_PATH"`, then run the commands
 
 ```
@@ -295,7 +297,72 @@ Pin the app badge to the extension toolbar (it might be necessary to enable Exte
 
 <img src="./launch_pavucontrol_native_messaging_2.png" alt="pavucontrol after getUserMedia({audio: true}), dynamic audio device capture selection">
 
+<h6>file_stream</h6>
 
+Capture system audio output to local file, read file during write, write file data to shared memory, read shared memory in `AudioWorkletProcessor`, stream captured output to a connected `MediaStreamTrack`.
+
+Set permissions for `.js`, `.sh` files in `host` folder to executable. Click `Load unpacked` at chrome://extensions, select `app` folder. Copy `native_messaging_file_stream.json` to `~/.config/chromium/NativeMessagingHosts`. To set permission to communicate with Native Messaging on a web page run `app/set_externally_connectable.js` at `console`, select `app` directory to update `manifest.json`, then reload `background.js` at extensions tab GUI or using chrom.runtime.reload()` at DevTools chrome-extension URL.
+
+<b>Usage</b>
+
+Select `app` directory at Native File System prompts for read and write access to local filesystem where raw PCM of system audio output is written to a file using  `parec` while reading the file during the write using Native File System, storing the data in shared memory, parsing input data in `AudioWorklet` connected to `MediaStreamTrack` outputting the captured system audio. 
+```
+onclick = async _ => {
+  onclick = null;
+  // pass seconds, capture 9 minutes of system audio output
+  captureSystemAudio(60 * 9);
+  // do stuff with MediaStreamTrack of system audio capture
+    .then(async track => {
+      const stream = new MediaStream([track]);
+      const recorder = new MediaRecorder(stream);
+      recorder.start();
+      recorder.onstart = recorder.onstop = e => console.log(e);
+      stream.oninactive = stream.onactive = e => console.log(e);
+      track.onmute = track.onunmute = track.onended = e => console.log(e);
+      console.log(recorder, stream, track);
+      recorder.ondataavailable = async e => {
+        // set duration of WebM file output by MediaRecorder at Chromium
+        const request = await fetch(
+          'https://gist.githubusercontent.com/guest271314/252b64b3f06593434fae209b3dc4303f'
+        + '/raw/6baca0c1e338824f24a9935a98a4030b01fc183e/ts-ebml-min.js'
+        );
+        const text = await request.blob();
+        const script = document.createElement('script');
+        document.body.appendChild(script);
+        script.src = URL.createObjectURL(
+          new Blob([text], { type: 'text/javascript' })
+        );
+        script.onload = async _ => {
+          const { Decoder, Encoder, tools, Reader } = require('ts-ebml');
+          const injectMetadata = async blob => {
+            const decoder = new Decoder();
+            const reader = new Reader();
+            reader.logging = false;
+            reader.drop_default_duration = false;
+            const buffer = await blob.arrayBuffer();
+            const elms = decoder.decode(buffer);
+            elms.forEach(elm => reader.read(elm));
+            reader.stop();
+            const refinedMetadataBuf = tools.makeMetadataSeekable(
+              reader.metadatas,
+              reader.duration,
+              reader.cues
+            );
+            const body = buffer.slice(reader.metadataSize);
+            const result = new Blob([refinedMetadataBuf, body], {
+              type: blob.type,
+            });
+            return result;
+          };
+          console.table({
+            blobURL: URL.createObjectURL(await injectMetadata(e.data)),
+          });
+        };
+      };
+    })
+    .catch(console.error);
+};
+```
 
 
 <h5>References</h5>

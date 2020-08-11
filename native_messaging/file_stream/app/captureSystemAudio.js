@@ -4,7 +4,7 @@ async function captureSystemAudio(captureTimeInSeconds) {
     let port;
     // Uint8Array(512) => Uint16Array(256) => Float32Array(128) (channel 0), Float32Array(128) (channel 1)
     const code = {
-      start: `parec --raw -d alsa_output.pci-0000_00_1b.0.analog-stereo.monitor ../app/data/output`,
+      start: `parec --raw -d alsa_output.pci-0000_00_1b.0.analog-stereo.monitor ../app/output`,
       stop: `killall -9 parec`,
     };
     // select app/data folder in extension directory

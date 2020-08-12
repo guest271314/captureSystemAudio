@@ -33,7 +33,6 @@ async function captureSystemAudio(captureTimeInSeconds) {
           const uint8_sab = memory.buffer;
           let readOffset = 0;
           let writeOffset = 0;
-          let bytesWritten = 0;
           class AudioWorkletProcessor {}
           class AudioWorkletNativeFileStream extends AudioWorkletProcessor {
             constructor(options) {

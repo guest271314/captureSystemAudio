@@ -364,3 +364,5 @@ onclick = async _ => {
 - https://bugs.chromium.org/p/chromium/issues/detail?id=795371
 - https://bugzilla.mozilla.org/show_bug.cgi?id=1425523
 - https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/issues/82
+- https://github.com/WebAudio/web-audio-api-v2/issues/97
+- https://gist.github.com/guest271314/04a539c00926e15905b86d05138c113c

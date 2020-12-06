@@ -366,3 +366,4 @@ onclick = async _ => {
 - https://gitlab.freedesktop.org/pulseaudio/pavucontrol/-/issues/82
 - https://github.com/WebAudio/web-audio-api-v2/issues/97
 - https://gist.github.com/guest271314/04a539c00926e15905b86d05138c113c
+- https://github.com/guest271314/setUserMediaAudioSource

@@ -353,7 +353,11 @@ This article [Virtual microphone using GStreamer and PulseAudio](https://aweirdi
 
 we can run
 
-`$ pactl load-module module-remap-source master="$(pactl list | grep -A2 '^Source #' |  grep 'Name: .*\.monitor$' | awk '{print $NF}' | tail -n1)" source_name=virtmic source_properties=device.description=Virtual_Microphone`
+```
+$ pactl load-module module-remap-source \
+  master="$(pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2)" \
+  source_name=virtmic source_properties=device.description=Virtual_Microphone
+```
 
 and then at Chromium and Chrome run
 
@@ -412,3 +416,4 @@ to first get permission to read labels of devices, find the device we want to ca
 - https://gist.github.com/guest271314/04a539c00926e15905b86d05138c113c
 - https://github.com/guest271314/setUserMediaAudioSource
 - https://gist.github.com/guest271314/53e00c6765aa256362fb52c08e82d189#file-capture_monitor_devices_at_chromium_and_chrome_on_linux-md
+- https://www.freedesktop.org/wiki/Software/PulseAudio/FAQ/

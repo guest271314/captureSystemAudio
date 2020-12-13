@@ -337,6 +337,50 @@ onclick = async _ => {
 ```
 
 
+<h5>PulseAudio module-remap-source</h5>
+
+This article [Virtual microphone using GStreamer and PulseAudio](https://aweirdimagination.net/2020/07/19/virtual-microphone-using-gstreamer-and-pulseaudio/) describes what we are trying to do to workaround Chrome and Chromium browsers' refusal to list or capture monitor devices on Linux
+
+> <b>Remap source</b>
+>
+> While the null sink automatically includes a "monitor" source, many programs know to exclude monitors when listing microphones. To work around that, the [module-remap-source](https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Modules/#module-remap-source) module lets us clone that source to another one not labeled as being a monitor:
+>
+> ```
+> pactl load-module module-remap-source \ 
+>     master=virtmic.monitor source_name=virtmic \ 
+>     source_properties=device.description=Virtual_Microphone
+> ```
+
+we can run
+
+`$ pactl load-module module-remap-source master="$(pactl list | grep -A2 '^Source #' |  grep 'Name: .*\.monitor$' | awk '{print $NF}' | tail -n1)" source_name=virtmic source_properties=device.description=Virtual_Microphone`
+
+and then at Chromium and Chrome run
+
+```
+var recorder;
+navigator.mediaDevices.getUserMedia({audio: true})
+.then(async stream => {
+  const [track] = stream.getAudioTracks();
+  track.stop();
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  const device = devices.find(({label}) => label === 'Virtual_Microphone');
+  console.log(devices, device);
+  return navigator.mediaDevices.getUserMedia({audio: {deviceId: {exact: device.deviceId}}});
+})
+.then(async stream => {
+   // do stuff with rempapped monitor device
+   recorder = new MediaRecorder(stream);
+   recorder.ondataavailable = e => console.log(URL.createObjectURL(e.data));
+   recorder.start();
+   setTimeout(_ => recorder.stop(), 30000);
+});
+```
+
+to first get permission to read labels of devices, find the device we want to capture, capture the virtual microphone device, in this case the monitor device which this Chromium commit refuses to list or capture per commit https://chromium.googlesource.com/chromium/src/+/4519c32f528e079f25cb2afc594ecf625f943782 (see https://bugs.chromium.org/p/chromium/issues/detail?id=931749#c6).
+
+
+
 <h5>References</h5>
 
 - https://lists.w3.org/Archives/Public/public-speech-api/2017Jun/0000.html
@@ -367,3 +411,4 @@ onclick = async _ => {
 - https://github.com/WebAudio/web-audio-api-v2/issues/97
 - https://gist.github.com/guest271314/04a539c00926e15905b86d05138c113c
 - https://github.com/guest271314/setUserMediaAudioSource
+- https://gist.github.com/guest271314/53e00c6765aa256362fb52c08e82d189#file-capture_monitor_devices_at_chromium_and_chrome_on_linux-md

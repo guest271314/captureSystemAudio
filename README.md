@@ -383,7 +383,7 @@ navigator.mediaDevices.getUserMedia({audio: true})
 
 to first get permission to read labels of devices, find the device we want to capture, capture the virtual microphone device, in this case the monitor device which this Chromium commit refuses to list or capture per commit https://chromium.googlesource.com/chromium/src/+/4519c32f528e079f25cb2afc594ecf625f943782 (see https://bugs.chromium.org/p/chromium/issues/detail?id=931749#c6).
 
-When no microphone input devices are connected to the machine the default device will be `"Virtual_Microphone"` negating the need to call `MediaStreamTrack.stop()` to stop capture of a microphone device just to get device access permission, then use `navigator.mediaDevices.enumerateDevices()` to get `deviceId` of monitor device, create a constraints object `{deviceId: {exact: device.deviceId}}` and call `navigator.mediaDevices.getUserMedia({audio: constraints})` a second time.
+When no microphone input devices are connected to the machine the remapped monitor deviced will be the default device `"Virtual_Microphone"` when `navigator.mediaDevices.getUserMedia({audio: true})` is executed the first time, negating the need to call `MediaStreamTrack.stop()` to stop capture of a microphone device just to get device access permission, then use `navigator.mediaDevices.enumerateDevices()` to get `deviceId` of monitor device, create a constraints object `{deviceId: {exact: device.deviceId}}` and call `navigator.mediaDevices.getUserMedia({audio: constraints})` a second time.
 
 
 

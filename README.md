@@ -383,7 +383,14 @@ navigator.mediaDevices.getUserMedia({audio: true})
 
 to first get permission to read labels of devices, find the device we want to capture, capture the virtual microphone device, in this case a monitor device, see https://bugs.chromium.org/p/chromium/issues/detail?id=931749#c6.
 
-When no microphone input devices are connected to the machine the remapped monitor deviced will be the default device `"Virtual_Microphone"` when `navigator.mediaDevices.getUserMedia({audio: true})` is executed the first time, negating the need to call `MediaStreamTrack.stop()` to stop capture of a microphone device just to get device access permission, then use `navigator.mediaDevices.enumerateDevices()` to get `deviceId` of monitor device, create a constraints object `{deviceId: {exact: device.deviceId}}` and call `navigator.mediaDevices.getUserMedia({audio: constraints})` a second time.
+When no microphone input devices are connected to the machine the remapped monitor device will be the default device `"Virtual_Microphone"` when `navigator.mediaDevices.getUserMedia({audio: true})` is executed the first time, negating the need to call `MediaStreamTrack.stop()` to stop capture of a microphone device just to get device access permission, then use `navigator.mediaDevices.enumerateDevices()` to get `deviceId` of monitor device, create a constraints object `{deviceId: {exact: device.deviceId}}` and call `navigator.mediaDevices.getUserMedia({audio: constraints})` a second time.
+
+To set the default source programmatically to the virtual microphone `"virtmic" `set-default-source` can be utilized
+```
+$ pactl set-default-source virtmic
+```
+if running, closing then restarting Chrome, Chromium, or Firefox, the device selected by `navigator,mediaDevices.getUserMedia({audio: true})`, unless changed by selection or other setting, will be the remapped monitor device `"Virtual_Microphone"`.
+
 
 
 

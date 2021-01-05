@@ -385,7 +385,7 @@ to first get permission to read labels of devices, find the device we want to ca
 
 When no microphone input devices are connected to the machine the remapped monitor device will be the default device `"Virtual_Microphone"` when `navigator.mediaDevices.getUserMedia({audio: true})` is executed the first time, negating the need to call `MediaStreamTrack.stop()` to stop capture of a microphone device just to get device access permission, then use `navigator.mediaDevices.enumerateDevices()` to get `deviceId` of monitor device, create a constraints object `{deviceId: {exact: device.deviceId}}` and call `navigator.mediaDevices.getUserMedia({audio: constraints})` a second time.
 
-To set the default source programmatically to the virtual microphone `"virtmic" `set-default-source` can be utilized
+To set the default source programmatically to the virtual microphone `"virtmic"` `set-default-source` can be utilized
 ```
 $ pactl set-default-source virtmic
 ```

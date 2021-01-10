@@ -363,14 +363,19 @@ and then at Chromium and Chrome run
 
 ```
 var recorder;
+var recorder;
 navigator.mediaDevices.getUserMedia({audio: true})
 .then(async stream => {
   const [track] = stream.getAudioTracks();
-  track.stop();
   const devices = await navigator.mediaDevices.enumerateDevices();
+  console.log(devices, track.label, track.getSettings(), await track.getConstraints());
   const device = devices.find(({label}) => label === 'Virtual_Microphone');
-  console.log(devices, device);
-  return navigator.mediaDevices.getUserMedia({audio: {deviceId: {exact: device.deviceId}}});
+  if (track.getSettings().deviceId === device.deviceId) {
+    return stream;
+  } else {
+  track.stop();
+    return navigator.mediaDevices.getUserMedia({audio: {deviceId: {exact: device.deviceId}}});
+  }
 })
 .then(async stream => {
    // do stuff with rempapped monitor device

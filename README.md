@@ -354,7 +354,7 @@ This article [Virtual microphone using GStreamer and PulseAudio](https://aweirdi
 we can run
 
 ```
-$ pactl load-module module-remap-source \
+pactl load-module module-remap-source \
   master="$(pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2)" \
   source_name=virtmic source_properties=device.description=Virtual_Microphone
 ```
@@ -392,7 +392,7 @@ When no microphone input devices are connected to the machine the remapped monit
 
 To set the default source programmatically to the virtual microphone `"virtmic"` `set-default-source` can be utilized
 ```
-$ pactl set-default-source virtmic
+pactl set-default-source virtmic
 ```
 if running, closing then restarting Chrome, Chromium, or Firefox, the device selected by `navigator,mediaDevices.getUserMedia({audio: true})`, unless changed by selection or other setting, will be the remapped monitor device `"Virtual_Microphone"`.
 

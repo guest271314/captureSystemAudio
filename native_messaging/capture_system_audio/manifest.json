@@ -1,0 +1,26 @@
+{
+  "name": "Capture system audio",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["nativeMessaging", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "web_accessible_resources": [    {
+      "resources": [ "transferableStream.html", "transferableStream.js" ],
+      "matches": [ "https://github.com/*", "https://bugs.chromium.org/*", "http://localhost:8000/*" ],
+      "extensions": [ "<id>" ]
+  }],  
+  "externally_connectable": {
+    "matches": [
+      "https://bugs.chromium.org/p/chromium/issues/*",
+      "chrome-extension://<id>/*"
+    ],
+    "ids": [
+      "*"
+    ]
+  },
+  "action": {},
+  "author": "guest271314"
+}

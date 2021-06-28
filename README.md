@@ -336,6 +336,59 @@ onclick = async _ => {
 };
 ```
 
+<h6>Web Accessible Resources, PHP passthru(), parec, fetch(), Transferable Streams, Media Capture Transform ("Breakout Box")</h6>
+
+Utilize Chromium extension with `"web_accessible_resources"` set to an HTML file that we load as an `<iframe>` in Web pages listed in `"matches"`. Turn on local development server with Native Messaging, `POST` `FormData` with key set to `"capture_system_audio"` and value set to command to pass to PHP `passthru()`, get response as `ReadableStream` then transfer the stream to `parent` with `postMessage()`, read the stream in "real-time", write values to a `MediaStreamTrackGenerator`.
+
+Download the directory [capture_system_audio](https://github.com/guest271314/captureSystemAudio/tree/master/native_messaging/capture_system_audio), set "Developer mode" to on at chrome:://extensions, click "Load unpacked".
+
+Note the generated extension ID and substitute that value for `<id>` in `capture_system_audio.json`, `manifest.json`, and `audioStream.js`.
+  
+Set `index.php` and `capture_system_audio.sh` to executable.
+
+`chmod u+x index.php capture_system_audio.sh`
+
+Copy Native Messaging manifest to Chromium 
+
+`cp capture_system_audio.json ~/.config/chromium/NativeMessagingHosts`
+
+or Chrome configuration folder.
+
+`cp capture_system_audio.json ~/.config/google.chrome-unstable/NativeMessagingHosts`
+
+`console` at origins set in `"matches"`.
+
+```
+let audioStream = new AudioStream(
+  new ReadableStream({
+    start(c) {
+      c.enqueue(
+        new File(
+          [
+            `parec -v --raw -d $(pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2)`,
+          ],
+          'capture_system_audio',
+          {
+            type: 'application/octet-stream',
+          }
+        )
+      );
+      c.close();
+    },
+  })
+);
+// audioStream.mediaStream: live MediaStream
+audioStream
+  .start()
+  .then((ab) => {
+    // ab: ArrayBuffer representation of WebM file from MediaRecorder
+    console.log(
+      URL.createObjectURL(new Blob([ab], { type: 'audio/webm;codecs=opus' }))
+    );
+  })
+  .catch(console.error);
+  // stop capturing system audio output
+```
 
 <h5>PulseAudio module-remap-source</h5>
 
@@ -395,9 +448,6 @@ To set the default source programmatically to the virtual microphone `"virtmic"`
 pactl set-default-source virtmic
 ```
 if running, closing then restarting Chrome, Chromium, or Firefox, the device selected by `navigator,mediaDevices.getUserMedia({audio: true})`, unless changed by selection or other setting, will be the remapped monitor device `"Virtual_Microphone"`.
-
-
-
 
 <h5>References</h5>
 

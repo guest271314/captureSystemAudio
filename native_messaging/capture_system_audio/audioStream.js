@@ -97,7 +97,7 @@ class AudioStream {
       this.transferableWindow.style.display = 'none';
       this.transferableWindow.name = location.href;
       this.transferableWindow.src =
-        'chrome-extension://pbcacennomncannjbmdjogheacknncbf/captureSystemAudio.html';
+        'chrome-extension://<id>/transferableStream.html';
       document.body.appendChild(this.transferableWindow);
     }).catch((err) => {
       throw err;

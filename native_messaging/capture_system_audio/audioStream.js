@@ -3,7 +3,6 @@ class AudioStream {
     this.stdin = stdin;
     this.readOffset = 0;
     this.duration = 0;
-    this.init = false;
     this.ac = new AudioContext({
       sampleRate: 44100,
       latencyHint: 0,

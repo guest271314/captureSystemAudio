@@ -387,7 +387,8 @@ audioStream
     );
   })
   .catch(console.error);
-  // stop capturing system audio output
+// stop capturing system audio output
+audioStream.stop();
 ```
 
 <h5>PulseAudio module-remap-source</h5>

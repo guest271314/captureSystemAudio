@@ -23,7 +23,7 @@ sendMessage() {
 
 capture_system_audio() {
   if pgrep -f 'php -S localhost:8000' > /dev/null; then
-    pkill -f 'php -S localhost:8000' & sendMessage '"Local server off."' 
+    pkill -f 'php -S localhost:8000' & pkill -f 'parec' & sendMessage '"Local server off."' 
   else
     php -S localhost:8000 & sendMessage '"Local server on."'
   fi

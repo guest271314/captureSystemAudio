@@ -152,16 +152,18 @@ class AudioStream {
                 // interleave
                 channels[(n = ++n % 2)][!n ? j++ : j - 1] = float;
               }
-              const buffer = new AudioBuffer({
-                numberOfChannels: 2,
-                length: channels[0].length,
+              const data = new Float32Array(
+                channels.reduce((a, b) => [...a, ...b], [])
+              );
+              const frame = new AudioData({
+                timestamp,
+                data,
                 sampleRate: 44100,
+                format: 'f32-planar',
+                numberOfChannels: 2,
+                numberOfFrames: 440,
               });
-              for (let i = 0; i < channels.length; i++) {
-                buffer.getChannelData(i).set(channels[i]);
-              }
-              this.duration += buffer.duration;
-              const frame = new AudioData({ timestamp, buffer });
+              this.duration += frame.duration;
               await this.audioWriter.write(frame);
             },
             close() {

@@ -417,7 +417,6 @@ and then at Chromium and Chrome run
 
 ```
 var recorder;
-var recorder;
 navigator.mediaDevices.getUserMedia({audio: true})
 .then(async stream => {
   const [track] = stream.getAudioTracks();

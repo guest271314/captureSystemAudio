@@ -1,43 +1,31 @@
 onload = async () => {
-  chrome.runtime.sendNativeMessage(
-    'capture_system_audio',
-    {},
-    async (nativeMessage) => {
-      parent.postMessage(nativeMessage, name);
-      await new Promise((resolve) => setTimeout(resolve, 20));
-      parent.postMessage('Ready.', name);
-      const controller = new AbortController();
-      const { signal } = controller;
-      signal.onabort = (e) => console.log(e);
-      onmessage = async (e) => {
-        if (e.data instanceof ReadableStream) {
-          try {
-            const { value: file, done } = await e.data.getReader().read();
-            const fd = new FormData();
-            const stdin = await file.text();
-            fd.append(file.name, stdin);
-            const { body } = await fetch('http://localhost:8000', {
-              method: 'post',
-              body: fd,
-              cache: 'no-store',
-              signal,
-            });
-            parent.postMessage(body, name, [body]);
-          } catch (err) {
-            console.error(err);
-          }
-        }
-        if (e.data === 'Abort.') {
-          controller.abort();
-          chrome.runtime.sendNativeMessage(
-            'capture_system_audio',
-            {},
-            (nativeMessage) => {
-              parent.postMessage(nativeMessage, name);
-            }
-          );
-        }
-      };
-    }
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter();
+  const port = chrome.runtime.connectNative(
+    'capture_system_audio'
   );
+  await writer.ready;
+  port.onDisconnect.addListener(async (e) => {
+    console.log(e);
+  });
+  port.onMessage.addListener(async ({ value, done }) => {
+    try {
+      await writer.write(new Uint8Array(base64ToBytesArr(value)));
+    } catch (e) {
+      parent.postMessage('Done.', name);
+      port.disconnect();
+      console.warn(e);
+      close();
+    }
+  });
+  onmessage = async (e) => {
+    const { type, message } = e.data;
+    if (type === 'start') {
+      port.postMessage({
+        message,
+      });
+      parent.postMessage(readable, name, [readable]);
+    }
+  };
+  parent.postMessage('Ready.', name);
 };

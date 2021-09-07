@@ -1,7 +1,7 @@
 {
   "name": "capture_system_audio",
   "description": "Capture system audio",
-  "path": "/path/to/capture_system_audio.sh",
+  "path": "/path/to/capture_system_audio.py",
   "type": "stdio",
   "allowed_origins": [
      "chrome-extension://<id>/"

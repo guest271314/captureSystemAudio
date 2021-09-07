@@ -5,8 +5,8 @@
   "permissions": [ "nativeMessaging" ],
   "host_permissions": [ "<all_urls>" ],
   "web_accessible_resources": [    {
-      "resources": [ "transferableStream.html", "transferableStream.js", "base64-encode-decode.js" ],
-      "matches": [ "https://github.com/*", "https://bugs.chromium.org/*", "http://localhost:8000/*" ],
+      "resources": [ "*.html", "*.js" ],
+      "matches": [ "<all_urls>" ],
       "extensions": [ "<id>" ]
   }],
   "action": {},

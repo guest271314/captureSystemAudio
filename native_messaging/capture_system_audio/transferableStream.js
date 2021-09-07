@@ -14,7 +14,7 @@ onload = async () => {
     } catch (e) {
       parent.postMessage('Done.', name);
       port.disconnect();
-      console.warn(e);
+      console.log(e.message);
       close();
     }
   });

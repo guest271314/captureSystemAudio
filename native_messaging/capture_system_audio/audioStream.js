@@ -54,7 +54,7 @@ class AudioStream {
       console.log(e);
     this.recorder = new MediaRecorder(this.mediaStream);
     this.recorder.ondataavailable = async ({ data }) =>
-      this.resolve((await injectMetadata(data)).arrayBuffer());
+      this.resolve(data.arrayBuffer());
     this.signal.onabort = async (e) => {
       console.log(e.type);
       try {

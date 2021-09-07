@@ -1,8 +1,10 @@
 class AudioStream {
   constructor(stdin) {
+    this.stopped = false;
     this.stdin = stdin;
     this.readOffset = 0;
     this.duration = 0;
+    this.src = 'chrome-extension://<id>/transferableStream.html';
     this.ac = new AudioContext({
       sampleRate: 44100,
       latencyHint: 0,
@@ -25,9 +27,15 @@ class AudioStream {
     this.stream = stream;
     const [track] = stream.getAudioTracks();
     this.track = track;
-    this.osc = new OscillatorNode(this.ac, { frequency: 0 });
-    this.processor = new MediaStreamTrackProcessor({ track });
-    this.generator = new MediaStreamTrackGenerator({ kind: 'audio' });
+    this.osc = new OscillatorNode(this.ac, {
+      frequency: 0,
+    });
+    this.processor = new MediaStreamTrackProcessor({
+      track,
+    });
+    this.generator = new MediaStreamTrackGenerator({
+      kind: 'audio',
+    });
     const { writable } = this.generator;
     this.writable = writable;
     const { readable: audioReadable } = this.processor;
@@ -45,46 +53,59 @@ class AudioStream {
     this.track.onmute = this.track.onunmute = this.track.onended = (e) =>
       console.log(e);
     this.recorder = new MediaRecorder(this.mediaStream);
-    this.recorder.ondataavailable = ({ data }) =>
-      this.resolve(data.arrayBuffer());
+    this.recorder.ondataavailable = async ({ data }) =>
+      this.resolve((await injectMetadata(data)).arrayBuffer());
     this.signal.onabort = async (e) => {
       console.log(e.type);
-      this.recorder.stop();
-      this.audioReadableAbortable.abort();
-      this.msd.disconnect();
-      this.osc.disconnect();
-      this.track.stop();
-      await this.audioWriter.close();
-      await this.audioWriter.closed;
-      this.inputController.close();
-      await this.inputReader.cancel();
-      this.generator.stop();
-      await this.ac.close();
-      console.log(
-        `readOffset:${this.readOffset}, duration:${this.duration}, ac.currentTime:${this.ac.currentTime}`,
-        `generator.readyState:${this.generator.readyState}, audioWriter.desiredSize:${this.audioWriter.desiredSize}`,
-        `inputController.desiredSize:${this.inputController.desiredSize}, ac.state:${this.ac.state}`
-      );
+      try {
+        this.recorder.stop();
+        this.audioReadableAbortable.abort();
+        this.msd.disconnect();
+        this.osc.disconnect();
+        this.track.stop();
+        await this.audioWriter.close();
+        await this.audioWriter.closed;
+        this.inputController.close();
+        await this.inputReader.cancel();
+        this.generator.stop();
+        await this.ac.close();
+      } catch (err) {
+        console.error(err);
+      } finally {
+        console.log(
+          `readOffset:${this.readOffset}, duration:${this.duration}, ac.currentTime:${this.ac.currentTime}`,
+          `generator.readyState:${this.generator.readyState}, audioWriter.desiredSize:${this.audioWriter.desiredSize}`,
+          `inputController.desiredSize:${this.inputController.desiredSize}, ac.state:${this.ac.state}`
+        );
+      }
     };
   }
   async start() {
-    return this.nativeTransferableStream();
+    return this.nativeMessageStream();
   }
-  stop() {
-    this.abortable.abort();
-    this.source.postMessage('Abort.', '*');
+  async stop() {
+    this.stopped = true;
+    try {
+      this.abortable.abort();
+    } catch (err) {
+      console.error(err.message);
+    }
   }
-  nativeTransferableStream() {
-    return new Promise(async (resolve) => {
-      onmessage = async (e) => {
-        console.log(e.data);
+  async nativeMessageStream() {
+    return new Promise((resolve) => {
+      onmessage = (e) => {
         this.source = e.source;
-        if (e.data === 'Ready.') {
-          this.source.postMessage(this.stdin, '*', [this.stdin]);
-        } else if (typeof e.data === 'string') {
-          if (e.data === 'Local server off.') {
-            onmessage = null;
-            document.body.removeChild(this.transferableWindow);
+        if (typeof e.data === 'string') {
+          if (e.data === 'Ready.') {
+            this.source.postMessage(
+              { type: 'start', message: this.stdin },
+              '*'
+            );
+          }
+          if (e.data === 'Done.') {
+            document.querySelectorAll(`[src="${this.src}"]`).forEach((f) => {
+              document.body.removeChild(f);
+            });
           }
         }
         if (e.data instanceof ReadableStream) {
@@ -95,8 +116,7 @@ class AudioStream {
       this.transferableWindow = document.createElement('iframe');
       this.transferableWindow.style.display = 'none';
       this.transferableWindow.name = location.href;
-      this.transferableWindow.src =
-        'chrome-extension://<id>/transferableStream.html';
+      this.transferableWindow.src = this.src;
       document.body.appendChild(this.transferableWindow);
     }).catch((err) => {
       throw err;
@@ -130,7 +150,9 @@ class AudioStream {
               this.inputController.close();
             },
           }),
-          { signal: this.signal }
+          {
+            signal: this.signal,
+          }
         ),
         this.audioReadable.pipeTo(
           new WritableStream({
@@ -138,9 +160,9 @@ class AudioStream {
               console.err(e.message);
             },
             write: async ({ timestamp }) => {
-              const uint8 = new Uint8Array(440 * 4);
+              const uint8 = new Int8Array(440 * 4);
               const { value, done } = await this.inputReader.read();
-              if (!done) uint8.set(new Uint8Array(value));
+              if (!done) uint8.set(new Int8Array(value));
               const uint16 = new Uint16Array(uint8.buffer);
               // https://stackoverflow.com/a/35248852
               const channels = [new Float32Array(440), new Float32Array(440)];
@@ -170,11 +192,12 @@ class AudioStream {
               console.log('Done reading input stream.');
             },
           }),
-          { signal: this.audioReadableSignal }
+          {
+            signal: this.audioReadableSignal,
+          }
         ),
         this.ac.resume(),
       ]);
-
       return this.promise;
     } catch (err) {
       console.error(err);

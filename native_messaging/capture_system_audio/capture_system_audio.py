@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S python3 -u
 # https://github.com/mdn/webextensions-examples/pull/157
 
 import sys

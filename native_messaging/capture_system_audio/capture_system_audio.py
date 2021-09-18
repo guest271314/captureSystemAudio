@@ -38,7 +38,7 @@ try:
         receivedMessage = getMessage()
         process = subprocess.Popen(split(receivedMessage), stdout=subprocess.PIPE)
         os.set_blocking(process.stdout.fileno(), False)
-        for chunk in iter(lambda: process.stdout.read(1760), b''):
+        for chunk in iter(lambda: process.stdout.read(1024*1024), b''):
             if chunk is not None:
                 encoded = base64.b64encode(chunk).decode()
                 sendMessage(encodeMessage({"value": encoded, "done": 0}))

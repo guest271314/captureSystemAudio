@@ -86,6 +86,10 @@ class AudioStream {
   async stop() {
     this.stopped = true;
     try {
+      this.source.postMessage(
+        { type: 'start', message: this.stdin },
+        '*'
+      );
       this.abortable.abort();
     } catch (err) {
       console.error(err.message);

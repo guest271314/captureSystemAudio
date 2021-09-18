@@ -87,7 +87,7 @@ class AudioStream {
     this.stopped = true;
     try {
       this.source.postMessage(
-        { type: 'start', message: this.stdin },
+        { type: 'stop', message: null },
         '*'
       );
       this.abortable.abort();

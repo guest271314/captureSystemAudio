@@ -26,6 +26,10 @@ onload = async () => {
       });
       parent.postMessage(readable, name, [readable]);
     }
+    if (type === 'stop') {
+      console.log(type, message, port);
+      port.disconnect();
+    }
   };
   parent.postMessage('Ready.', name);
 };

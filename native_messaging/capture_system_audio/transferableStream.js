@@ -2,10 +2,9 @@ onload = async () => {
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
   const id = 'capture_system_audio';
-  let port = chrome.runtime.connectNative(id);
-  let done = false;
+  const port = chrome.runtime.connectNative(id);
   // Chromium 96: onMessage event handler dispatched after disconnect()
-  const handleMessage = ({ value }) => {
+  const handleMessage = ({ value, done }) => {
     return writer
       .write(new Uint8Array(base64ToBytesArr(value)))
       .catch((err) => {
@@ -30,9 +29,7 @@ onload = async () => {
     }
     if (type === 'stop') {
       console.log(type, message, port);
-      if (port) {
-        port.disconnect(id);
-      }
+      port.disconnect(id);
     }
   };
   parent.postMessage('Ready.', name);

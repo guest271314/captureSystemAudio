@@ -10,6 +10,7 @@ onload = () => {
         console.log(err.message, performance.now());
         parent.postMessage('Done.', name);
         port.disconnect(id);
+        onmessage = null;
         if ('gc' in globalThis) gc();
         return false;
       });

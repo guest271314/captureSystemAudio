@@ -107,9 +107,10 @@ class AudioStream {
             );
           }
           if (e.data === 'Done.') {
-            document.querySelectorAll(`[src="${this.src}"]`).forEach((f) => {
-              document.body.removeChild(f);
+            document.querySelectorAll(`[src="${this.src}"]`).forEach((iframe) => {
+              document.body.removeChild(iframe);
             });
+            onmessage = null;
           }
         }
         if (e.data instanceof ReadableStream) {

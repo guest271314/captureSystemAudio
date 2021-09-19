@@ -1,23 +1,26 @@
 onload = async () => {
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
-  const port = chrome.runtime.connectNative(
-    'capture_system_audio'
-  );
+  const id = 'capture_system_audio';
+  let port = chrome.runtime.connectNative(id);
+  let done = false;
+  const handleMessage = ({ value }) => {
+    return writer
+      .write(new Uint8Array(base64ToBytesArr(value)))
+      .catch((err) => {
+        console.log(err.message, performance.now());
+        parent.postMessage('Done.', name);
+        // Chromium 96: onMessage event handler dispatched after disconnect()
+        port.disconnect(id);
+        if ('gc' in globalThis) gc();
+        return false;
+      });
+  };
   await writer.ready;
   port.onDisconnect.addListener(async (e) => {
     console.log(e);
   });
-  port.onMessage.addListener(async ({ value, done }) => {
-    try {
-      await writer.write(new Uint8Array(base64ToBytesArr(value)));
-    } catch (e) {
-      parent.postMessage('Done.', name);
-      port.disconnect();
-      console.log(e.message);
-      close();
-    }
-  });
+  port.onMessage.addListener(handleMessage);
   onmessage = async (e) => {
     const { type, message } = e.data;
     if (type === 'start') {
@@ -28,7 +31,11 @@ onload = async () => {
     }
     if (type === 'stop') {
       console.log(type, message, port);
-      port.disconnect();
+      if (port) {
+        port.disconnect(id);
+        parent.postMessage('Done.', name);
+        if ('gc' in globalThis) gc();
+      }
     }
   };
   parent.postMessage('Ready.', name);

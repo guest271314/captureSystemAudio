@@ -4,14 +4,13 @@ onload = async () => {
   const id = 'capture_system_audio';
   let port = chrome.runtime.connectNative(id);
   let done = false;
+  // Chromium 96: onMessage event handler dispatched after disconnect()
   const handleMessage = ({ value }) => {
     return writer
       .write(new Uint8Array(base64ToBytesArr(value)))
       .catch((err) => {
         console.log(err.message, performance.now());
         parent.postMessage('Done.', name);
-        // Chromium 96: onMessage event handler dispatched after disconnect()
-        port.disconnect(id);
         if ('gc' in globalThis) gc();
         return false;
       });
@@ -33,8 +32,6 @@ onload = async () => {
       console.log(type, message, port);
       if (port) {
         port.disconnect(id);
-        parent.postMessage('Done.', name);
-        if ('gc' in globalThis) gc();
       }
     }
   };

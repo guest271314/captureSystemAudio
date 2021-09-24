@@ -360,7 +360,7 @@ or Chrome configuration folder.
 
 ```
 var audioStream = new AudioStream(
-  `parec -v --raw -d $(pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2)`
+  `parec -d alsa_output.pci-0000_00_1b.0.analog-stereo.monitor`
 );
 // audioStream.mediaStream: live MediaStream
 audioStream

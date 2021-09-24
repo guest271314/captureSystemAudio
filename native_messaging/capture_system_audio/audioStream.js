@@ -4,7 +4,8 @@ class AudioStream {
     this.stdin = stdin;
     this.readOffset = 0;
     this.duration = 0;
-    this.src = 'chrome-extension://<id>/transferableStream.html';
+    this.src =
+      'chrome-extension://<id>/transferableStream.html';
     this.ac = new AudioContext({
       sampleRate: 44100,
       latencyHint: 0,
@@ -52,9 +53,55 @@ class AudioStream {
     this.osc.start();
     this.track.onmute = this.track.onunmute = this.track.onended = (e) =>
       console.log(e);
+    this.chunks = [];
     this.recorder = new MediaRecorder(this.mediaStream);
-    this.recorder.ondataavailable = async ({ data }) =>
-      this.resolve(data.arrayBuffer());
+    this.recorder.onstop = async (e) => {
+      const { Decoder, Encoder, tools, Reader } = require('ts-ebml');
+      const readAsArrayBuffer = function (blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsArrayBuffer(blob);
+          reader.onloadend = () => {
+            resolve(reader.result);
+          };
+          reader.onerror = (ev) => {
+            reject(ev.error);
+          };
+        });
+      };
+
+      const injectMetadata = function (blob) {
+        const decoder = new Decoder();
+        const reader = new Reader();
+        reader.logging = false;
+        reader.drop_default_duration = false;
+
+        return readAsArrayBuffer(blob).then((buffer) => {
+          const elms = decoder.decode(buffer);
+          elms.forEach((elm) => {
+            reader.read(elm);
+          });
+          reader.stop();
+
+          const refinedMetadataBuf = tools.makeMetadataSeekable(
+            reader.metadatas,
+            reader.duration,
+            reader.cues
+          );
+          const body = buffer.slice(reader.metadataSize);
+
+          const result = new Blob([refinedMetadataBuf, body], {
+            type: blob.type,
+          });
+
+          return result;
+        });
+      };
+      this.resolve((await injectMetadata(new Blob(this.chunks))).arrayBuffer());
+    };
+    this.recorder.ondataavailable = async ({ data }) => {
+      this.chunks.push(data);
+    };
     this.signal.onabort = async (e) => {
       console.log(e.type);
       try {
@@ -86,10 +133,7 @@ class AudioStream {
   async stop() {
     this.stopped = true;
     try {
-      this.source.postMessage(
-        { type: 'stop', message: null },
-        '*'
-      );
+      this.source.postMessage({ type: 'stop', message: null }, '*');
       this.abortable.abort();
     } catch (err) {
       console.error(err.message);
@@ -100,6 +144,7 @@ class AudioStream {
       onmessage = (e) => {
         this.source = e.source;
         if (typeof e.data === 'string') {
+          console.log(e.data);
           if (e.data === 'Ready.') {
             this.source.postMessage(
               { type: 'start', message: this.stdin },
@@ -107,8 +152,9 @@ class AudioStream {
             );
           }
           if (e.data === 'Done.') {
-            document.querySelectorAll(`[src="${this.src}"]`).forEach((iframe) => {
-              document.body.removeChild(iframe);
+            document.querySelectorAll(`[src="${this.src}"]`).forEach((f) => {
+              console.log(f);
+              document.body.removeChild(f);
             });
             onmessage = null;
           }
@@ -128,7 +174,7 @@ class AudioStream {
     });
   }
   async captureSystemAudio() {
-    this.recorder.start();
+    this.recorder.start(500);
     let channelData = [];
     try {
       await Promise.allSettled([

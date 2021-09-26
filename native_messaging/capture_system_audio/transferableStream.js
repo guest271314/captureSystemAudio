@@ -12,13 +12,17 @@ onload = async () => {
     }
     return port.disconnect(id);
   };
-  const handleMessage = async ({ value }) => {
+  const handleMessage = async (value) => {
     try {
       await writer.ready;
-      await writer.write(new Uint8Array(base64ToBytesArr(value)));
+      await writer.write(new Uint8Array(JSON.parse(value)));
     } catch (err) {
-      console.warn(err);
-      return await disconnect();
+      console.warn(err.message);
+      try {
+        await disconnect();
+      } catch (e) {
+        console.warn(e.message);
+      }
     }
   };
   await writer.ready;

@@ -4,11 +4,9 @@
 import sys
 import json
 import struct
-import base64
 import argparse
 import os
 import subprocess
-import time
 from shlex import split
 
 try:
@@ -40,12 +38,11 @@ try:
         process = subprocess.Popen(split(receivedMessage), stdout=subprocess.PIPE)
         os.set_blocking(process.stdout.fileno(), False)
         starttime = time.time()
-        for chunk in iter(lambda: process.stdout.read(680 * 680), b''):
+        for chunk in iter(lambda: process.stdout.read(1024 * 1024), b''):
             if chunk is not None:
-                encoded = base64.b64encode(chunk).decode()
-                sendMessage(encodeMessage({"value": encoded, "done": 0}))
-                # https://bugs.chromium.org/p/chromium/issues/detail?id=1250933
-                time.sleep(0.02 - ((time.time() - starttime) % 0.02))                         
-        sendMessage(encodeMessage({"value": "", "done": 1}))
-except AttributeError:
+                encoded = str([int('%02X' % i, 16) for i in chunk])
+                sendMessage(encodeMessage(encoded))                       
+except Exception as e:
+    sys.stdout.buffer.flush()
+    sys.stdin.buffer.flush()
     sys.exit(0)

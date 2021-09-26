@@ -53,34 +53,41 @@ class AudioStream {
     this.osc.start();
     this.track.onmute = this.track.onunmute = this.track.onended = (e) =>
       console.log(e);
+    this.outputStreamController = void 0;
     this.outputStream = new ReadableStream(
       {
-        start: (c) => (this.outputStreamController = c),
+        start: async (_) => {
+          return (this.outputStreamController = _);
+        },
       },
       { highWaterMark: 1 }
+    ).pipeThrough(
+      new TransformStream({
+        async transform(blob, c) {
+          try {
+            c.enqueue(new Uint8Array(await blob.arrayBuffer()));
+          } catch (err) {
+            console.warn(`Response.arrayBuffer(): ${err.message}`);
+          }
+        },
+        flush() {
+          console.log('flush');
+        },
+      })
     );
     this.recorder = new MediaRecorder(this.mediaStream, {
       audioBitrateMode: 'constant',
     });
     this.recorder.onstop = async (e) => {
-      console.log('recorder stop()');
       this.resolve(
-        new Response(this.outputStream, { cache: 'no-store' }).arrayBuffer()
+        new Response(this.outputStream).blob()
       );
     };
     this.recorder.ondataavailable = async ({ data }) => {
-      try {
-        if (data.size > 0) {
-          const u = new Uint8Array(await data.arrayBuffer());
-          this.outputStreamController.enqueue(u);
-        } else {
-          this.outputStreamController.close();
-          if ('gc' in globalThis) {
-            gc();
-          }
-        }
-      } catch (err) {
-        console.warn(err);
+      if (data.size > 0) {
+        this.outputStreamController.enqueue(data);
+      } else {
+        this.outputStreamController.close();
       }
     };
     this.signal.onabort = async (e) => {

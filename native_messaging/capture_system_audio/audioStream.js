@@ -53,17 +53,40 @@ class AudioStream {
     this.osc.start();
     this.track.onmute = this.track.onunmute = this.track.onended = (e) =>
       console.log(e);
-    this.chunks = [];
-    this.recorder = new MediaRecorder(this.mediaStream);
+    this.outputStream = new ReadableStream(
+      {
+        start: (c) => (this.outputStreamController = c),
+      },
+      { highWaterMark: 1 }
+    );
+    this.recorder = new MediaRecorder(this.mediaStream, {
+      audioBitrateMode: 'constant',
+    });
     this.recorder.onstop = async (e) => {
-      this.resolve(new Blob(this.chunks).arrayBuffer());
+      console.log('recorder stop()');
+      this.resolve(
+        new Response(this.outputStream, { cache: 'no-store' }).arrayBuffer()
+      );
     };
     this.recorder.ondataavailable = async ({ data }) => {
-      this.chunks.push(data);
+      try {
+        if (data.size > 0) {
+          const u = new Uint8Array(await data.arrayBuffer());
+          this.outputStreamController.enqueue(u);
+        } else {
+          this.outputStreamController.close();
+          if ('gc' in globalThis) {
+            gc();
+          }
+        }
+      } catch (err) {
+        console.warn(err);
+      }
     };
     this.signal.onabort = async (e) => {
       console.log(e.type);
       try {
+        this.recorder.requestData();
         this.recorder.stop();
         this.audioReadableAbortable.abort();
         this.msd.disconnect();
@@ -90,6 +113,7 @@ class AudioStream {
     return this.nativeMessageStream();
   }
   async stop() {
+    console.log(this.inputController.desiredSize);
     this.stopped = true;
     try {
       this.source.postMessage({ type: 'stop', message: null }, '*');
@@ -133,7 +157,7 @@ class AudioStream {
     });
   }
   async captureSystemAudio() {
-    this.recorder.start(500);
+    this.recorder.start(1);
     let channelData = [];
     try {
       await Promise.allSettled([
@@ -142,7 +166,7 @@ class AudioStream {
             write: async (value, c) => {
               let i = 0;
               for (; i < value.buffer.byteLength; i++, this.readOffset++) {
-                if (channelData.length === 440 * 4) {
+                if (channelData.length === 441 * 4) {
                   this.inputController.enqueue([...channelData]);
                   channelData.length = 0;
                 }
@@ -170,12 +194,12 @@ class AudioStream {
               console.err(e.message);
             },
             write: async ({ timestamp }) => {
-              const uint8 = new Int8Array(440 * 4);
+              const uint8 = new Int8Array(441 * 4);
               const { value, done } = await this.inputReader.read();
               if (!done) uint8.set(new Int8Array(value));
               const uint16 = new Uint16Array(uint8.buffer);
               // https://stackoverflow.com/a/35248852
-              const channels = [new Float32Array(440), new Float32Array(440)];
+              const channels = [new Float32Array(441), new Float32Array(441)];
               for (let i = 0, j = 0, n = 1; i < uint16.length; i++) {
                 const int = uint16[i];
                 // If the high bit is on, then it is a negative number, and actually counts backwards.
@@ -193,7 +217,7 @@ class AudioStream {
                 sampleRate: 44100,
                 format: 'f32-planar',
                 numberOfChannels: 2,
-                numberOfFrames: 440,
+                numberOfFrames: 441,
               });
               this.duration += frame.duration;
               await this.audioWriter.write(frame);

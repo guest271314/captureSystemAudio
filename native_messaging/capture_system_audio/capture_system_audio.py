@@ -37,7 +37,6 @@ try:
         receivedMessage = getMessage()
         process = subprocess.Popen(split(receivedMessage), stdout=subprocess.PIPE)
         os.set_blocking(process.stdout.fileno(), False)
-        starttime = time.time()
         for chunk in iter(lambda: process.stdout.read(1024 * 1024), b''):
             if chunk is not None:
                 encoded = str([int('%02X' % i, 16) for i in chunk])

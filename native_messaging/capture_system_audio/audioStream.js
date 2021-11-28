@@ -79,6 +79,11 @@ class AudioStream {
       audioBitrateMode: 'constant',
     });
     this.recorder.onstop = async (e) => {
+      try {
+        this.outputStreamController.close();
+      } catch(err) {
+        console.warn(err);
+      }
       this.resolve(
         new Response(this.outputStream).blob()
       );
@@ -86,8 +91,6 @@ class AudioStream {
     this.recorder.ondataavailable = async ({ data }) => {
       if (data.size > 0) {
         this.outputStreamController.enqueue(data);
-      } else {
-        this.outputStreamController.close();
       }
     };
     this.signal.onabort = async (e) => {
@@ -215,9 +218,9 @@ class AudioStream {
                 // interleave
                 channels[(n = ++n % 2)][!n ? j++ : j - 1] = float;
               }
-              const data = new Float32Array(
-                channels.reduce((a, b) => [...a, ...b], [])
-              );
+              const data = new Float32Array(882);
+              data.set(channels.shift(), 0);
+              data.set(channels.shift(), 441);
               const frame = new AudioData({
                 timestamp,
                 data,

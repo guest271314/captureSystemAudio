@@ -8,7 +8,7 @@ onload = async () => {
       port.onMessage.removeListener(handleMessage);
       parent.postMessage('Done.', name);
       onmessage = null;
-      await writer.abort();
+      await writer.abort().then(() => console.log('writer aborted')).catch(console.error);
     }
     return port.disconnect(id);
   };
@@ -19,7 +19,9 @@ onload = async () => {
     } catch (err) {
       console.warn(err.message);
       try {
-        await disconnect();
+        if (port.onMessage.hasListener(handleMessage)) {
+          await disconnect();
+        }
       } catch (e) {
         console.warn(e.message);
       }

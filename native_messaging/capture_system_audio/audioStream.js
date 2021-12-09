@@ -5,7 +5,7 @@ class AudioStream {
     this.readOffset = 0;
     this.duration = 0;
     this.src =
-      'chrome-extension://pbcacennomncannjbmdjogheacknncbf/transferableStream.html';
+      'chrome-extension://<id>/transferableStream.html';
     this.ac = new AudioContext({
       sampleRate: 44100,
       latencyHint: 0,

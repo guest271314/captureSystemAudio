@@ -102,7 +102,9 @@ class AudioStream {
   async nativeMessageStream() {
     return new Promise((resolve) => {
       onmessage = (e) => {
-        this.source = e.source;
+        if (!this.source) {
+          this.source = e.source;
+        }
         if (e.data === 1) {
           this.source.postMessage({ type: 'start', message: this.stdin }, '*');
         }
@@ -163,7 +165,6 @@ class AudioStream {
                   await this.audioWriter.closed;
                   this.generator.stop();
                   await this.ac.close();
-                  console.log();
                 } catch (err) {
                   console.error(err);
                 } finally {

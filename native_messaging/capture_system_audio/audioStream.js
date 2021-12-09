@@ -19,7 +19,8 @@ class AudioStream {
       start: (_) => {
         return (this.inputController = _);
       },
-    });
+      { highWaterMark: 1 }
+    );
     this.inputReader = this.inputStream.getReader();
     const { stream } = this.msd;
     this.stream = stream;

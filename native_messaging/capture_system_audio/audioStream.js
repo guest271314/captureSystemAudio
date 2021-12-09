@@ -5,7 +5,7 @@ class AudioStream {
     this.readOffset = 0;
     this.duration = 0;
     this.src =
-      'chrome-extension://<id>/transferableStream.html';
+      'chrome-extension://pbcacennomncannjbmdjogheacknncbf/transferableStream.html';
     this.ac = new AudioContext({
       sampleRate: 44100,
       latencyHint: 0,
@@ -20,9 +20,6 @@ class AudioStream {
         return (this.inputController = _);
       },
     });
-    this.abortable = new AbortController();
-    const { signal } = this.abortable;
-    this.signal = signal;
     this.inputReader = this.inputStream.getReader();
     const { stream } = this.msd;
     this.stream = stream;
@@ -41,10 +38,6 @@ class AudioStream {
     this.writable = writable;
     const { readable: audioReadable } = this.processor;
     this.audioReadable = audioReadable;
-    this.audioReadableAbortable = new AbortController();
-    const { signal: audioReadableSignal } = this.audioReadableAbortable;
-    this.audioReadableSignal = audioReadableSignal;
-    this.audioReadableSignal.onabort = (e) => console.log(e.type);
     this.audioWriter = this.writable.getWriter();
     this.mediaStream = new MediaStream([this.generator]);
     this.resolve = void 0;
@@ -67,11 +60,11 @@ class AudioStream {
           try {
             c.enqueue(new Uint8Array(await blob.arrayBuffer()));
           } catch (err) {
-            console.warn(`Response.arrayBuffer(): ${err.message}`);
+            console.warn(err.message);
           }
         },
         flush() {
-          console.log('flush');
+          console.log('Flush.');
         },
       })
     );
@@ -81,8 +74,8 @@ class AudioStream {
     this.recorder.onstop = async (e) => {
       try {
         this.outputStreamController.close();
-      } catch(err) {
-        console.warn(err);
+      } catch (err) {
+        console.warn(err.message);
       }
       this.resolve(
         new Response(this.outputStream).blob()
@@ -91,31 +84,6 @@ class AudioStream {
     this.recorder.ondataavailable = async ({ data }) => {
       if (data.size > 0) {
         this.outputStreamController.enqueue(data);
-      }
-    };
-    this.signal.onabort = async (e) => {
-      console.log(e.type);
-      try {
-        this.recorder.requestData();
-        this.recorder.stop();
-        this.audioReadableAbortable.abort();
-        this.msd.disconnect();
-        this.osc.disconnect();
-        this.track.stop();
-        await this.audioWriter.close();
-        await this.audioWriter.closed;
-        this.inputController.close();
-        await this.inputReader.cancel();
-        this.generator.stop();
-        await this.ac.close();
-      } catch (err) {
-        console.error(err);
-      } finally {
-        console.log(
-          `readOffset:${this.readOffset}, duration:${this.duration}, ac.currentTime:${this.ac.currentTime}`,
-          `generator.readyState:${this.generator.readyState}, audioWriter.desiredSize:${this.audioWriter.desiredSize}`,
-          `inputController.desiredSize:${this.inputController.desiredSize}, ac.state:${this.ac.state}`
-        );
       }
     };
   }
@@ -127,7 +95,6 @@ class AudioStream {
     this.stopped = true;
     try {
       this.source.postMessage({ type: 'stop', message: null }, '*');
-      this.abortable.abort();
     } catch (err) {
       console.error(err.message);
     }
@@ -136,21 +103,14 @@ class AudioStream {
     return new Promise((resolve) => {
       onmessage = (e) => {
         this.source = e.source;
-        if (typeof e.data === 'string') {
-          console.log(e.data);
-          if (e.data === 'Ready.') {
-            this.source.postMessage(
-              { type: 'start', message: this.stdin },
-              '*'
-            );
-          }
-          if (e.data === 'Done.') {
-            document.querySelectorAll(`[src="${this.src}"]`).forEach((f) => {
-              console.log(f);
-              document.body.removeChild(f);
-            });
-            onmessage = null;
-          }
+        if (e.data === 1) {
+          this.source.postMessage({ type: 'start', message: this.stdin }, '*');
+        }
+        if (e.data === 0) {
+          document.querySelectorAll(`[src="${this.src}"]`).forEach((f) => {
+            document.body.removeChild(f);
+          });
+          onmessage = null;
         }
         if (e.data instanceof ReadableStream) {
           this.stdout = e.data;
@@ -171,75 +131,93 @@ class AudioStream {
     let channelData = [];
     try {
       await Promise.allSettled([
-        this.stdout.pipeTo(
-          new WritableStream({
-            write: async (value, c) => {
-              let i = 0;
-              for (; i < value.buffer.byteLength; i++, this.readOffset++) {
-                if (channelData.length === 441 * 4) {
-                  this.inputController.enqueue([...channelData]);
-                  channelData.length = 0;
+        this.stdout
+          .pipeTo(
+            new WritableStream({
+              write: async (value, c) => {
+                let i = 0;
+                for (; i < value.buffer.byteLength; i++, this.readOffset++) {
+                  if (channelData.length === 441 * 4) {
+                    this.inputController.enqueue([...channelData]);
+                    channelData.length = 0;
+                  }
+                  channelData.push(value[i]);
                 }
-                channelData.push(value[i]);
-              }
-            },
-            abort(e) {
-              console.err(e.message);
-            },
-            close: () => {
-              console.log('Done writing input stream.');
-              if (channelData.length) {
-                this.inputController.enqueue(channelData);
-              }
-              this.inputController.close();
-            },
-          }),
-          {
-            signal: this.signal,
-          }
-        ),
-        this.audioReadable.pipeTo(
-          new WritableStream({
-            abort(e) {
-              console.err(e.message);
-            },
-            write: async ({ timestamp }) => {
-              const uint8 = new Int8Array(441 * 4);
-              const { value, done } = await this.inputReader.read();
-              if (!done) uint8.set(new Int8Array(value));
-              const uint16 = new Uint16Array(uint8.buffer);
-              // https://stackoverflow.com/a/35248852
-              const channels = [new Float32Array(441), new Float32Array(441)];
-              for (let i = 0, j = 0, n = 1; i < uint16.length; i++) {
-                const int = uint16[i];
-                // If the high bit is on, then it is a negative number, and actually counts backwards.
-                const float =
-                  int >= 0x8000 ? -(0x10000 - int) / 0x8000 : int / 0x7fff;
-                // interleave
-                channels[(n = ++n % 2)][!n ? j++ : j - 1] = float;
-              }
-              const data = new Float32Array(882);
-              data.set(channels.shift(), 0);
-              data.set(channels.shift(), 441);
-              const frame = new AudioData({
-                timestamp,
-                data,
-                sampleRate: 44100,
-                format: 'f32-planar',
-                numberOfChannels: 2,
-                numberOfFrames: 441,
-              });
-              this.duration += frame.duration;
-              await this.audioWriter.write(frame);
-            },
-            close() {
-              console.log('Done reading input stream.');
-            },
-          }),
-          {
-            signal: this.audioReadableSignal,
-          }
-        ),
+              },
+              abort(e) {
+                console.error(e.message);
+              },
+              close: async () => {
+                console.log('Done writing input stream.');
+                if (channelData.length) {
+                  this.inputController.enqueue(channelData);
+                }
+                this.inputController.close();
+                try {
+                  this.recorder.requestData();
+                  this.recorder.stop();
+                  this.msd.disconnect();
+                  this.osc.disconnect();
+                  this.track.stop();
+                  await this.audioWriter.close();
+                  await this.audioWriter.closed;
+                  this.generator.stop();
+                  await this.ac.close();
+                  console.log();
+                } catch (err) {
+                  console.error(err);
+                } finally {
+                  console.log(
+                    `readOffset:${this.readOffset}, duration:${this.duration}, ac.currentTime:${this.ac.currentTime}`,
+                    `generator.readyState:${this.generator.readyState}, audioWriter.desiredSize:${this.audioWriter.desiredSize}`,
+                    `inputController.desiredSize:${this.inputController.desiredSize}, ac.state:${this.ac.state}`
+                  );
+                }
+              },
+            })
+          )
+          .catch(console.warn),
+        this.audioReadable
+          .pipeTo(
+            new WritableStream({
+              abort(e) {
+                console.error(e.message);
+              },
+              write: async ({ timestamp }) => {
+                const uint8 = new Int8Array(441 * 4);
+                const { value, done } = await this.inputReader.read();
+                if (!done) uint8.set(new Int8Array(value));
+                const uint16 = new Uint16Array(uint8.buffer);
+                // https://stackoverflow.com/a/35248852
+                const channels = [new Float32Array(441), new Float32Array(441)];
+                for (let i = 0, j = 0, n = 1; i < uint16.length; i++) {
+                  const int = uint16[i];
+                  // If the high bit is on, then it is a negative number, and actually counts backwards.
+                  const float =
+                    int >= 0x8000 ? -(0x10000 - int) / 0x8000 : int / 0x7fff;
+                  // interleave
+                  channels[(n = ++n % 2)][!n ? j++ : j - 1] = float;
+                }
+                const data = new Float32Array(882);
+                data.set(channels.shift(), 0);
+                data.set(channels.shift(), 441);
+                const frame = new AudioData({
+                  timestamp,
+                  data,
+                  sampleRate: 44100,
+                  format: 'f32-planar',
+                  numberOfChannels: 2,
+                  numberOfFrames: 441,
+                });
+                this.duration += frame.duration;
+                await this.audioWriter.write(frame);
+              },
+              close: () => {
+                console.log('Done reading input stream.');
+              },
+            })
+          )
+          .catch(console.warn),
         this.ac.resume(),
       ]);
       return this.promise;

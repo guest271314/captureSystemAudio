@@ -153,6 +153,9 @@ class AudioStream {
                 if (channelData.length) {
                   this.inputController.enqueue(channelData);
                 }
+                while (this.inputController.desiredSize < 0) {
+                  await scheduler.postTask(() => {});
+                }
                 this.inputController.close();
                 console.log('Done writing input stream.');
                 try {

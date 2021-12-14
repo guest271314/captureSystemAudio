@@ -20,9 +20,7 @@ onload = () => {
   onmessage = async (e) => {
     const { type, message } = e.data;
     if (type === 'start') {
-      port.postMessage({
-        message,
-      });
+      port.postMessage(message);
       parent.postMessage(readable, name, [readable]);
     }
     if (type === 'stop') {

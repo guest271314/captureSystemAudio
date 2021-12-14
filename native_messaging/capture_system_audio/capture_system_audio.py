@@ -18,7 +18,7 @@ try:
             sys.exit(0)
         messageLength = struct.unpack('@I', rawLength)[0]
         message = sys.stdin.buffer.read(messageLength).decode('utf-8')
-        return json.loads(message)["message"]
+        return json.loads(message)
 
     # Encode a message for transmission,
     # given its content.

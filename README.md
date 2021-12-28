@@ -356,7 +356,7 @@ or Chrome configuration folder.
 
 `cp capture_system_audio.json ~/.config/google.chrome-unstable/NativeMessagingHosts`
 
-`console` at origins set in `"matches"`.
+At `console` or Sources -> Snippets at origins set in `"matches"` in `manifest.json`.
 
 ```
 var audioStream = new AudioStream(

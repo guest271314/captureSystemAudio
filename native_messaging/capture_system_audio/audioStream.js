@@ -200,7 +200,7 @@ class AudioStream {
                   // If the high bit is on, then it is a negative number, and actually counts backwards.
                   const float =
                     int >= 0x8000 ? -(0x10000 - int) / 0x8000 : int / 0x7fff;
-                  // interleave
+                  // deinterleave
                   channels[(n = ++n % 2)][!n ? j++ : j - 1] = float;
                 }
                 const data = new Float32Array(882);

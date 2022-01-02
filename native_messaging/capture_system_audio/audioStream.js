@@ -4,8 +4,9 @@ class AudioStream {
     this.stdin = stdin;
     this.readOffset = 0;
     this.duration = 0;
-    this.src =
-      'chrome-extension://<id>/transferableStream.html';
+    this.src = new URL(
+      'chrome-extension://<id>/transferableStream.html'
+    );
     this.ac = new AudioContext({
       sampleRate: 44100,
       latencyHint: 0,
@@ -19,8 +20,7 @@ class AudioStream {
       start: (_) => {
         return (this.inputController = _);
       },
-      { highWaterMark: 1 }
-    );
+    });
     this.inputReader = this.inputStream.getReader();
     const { stream } = this.msd;
     this.stream = stream;
@@ -39,6 +39,7 @@ class AudioStream {
     this.writable = writable;
     const { readable: audioReadable } = this.processor;
     this.audioReadable = audioReadable;
+    this.audioReadableAbortable = new AbortController();
     this.audioWriter = this.writable.getWriter();
     this.mediaStream = new MediaStream([this.generator]);
     this.resolve = void 0;
@@ -61,7 +62,7 @@ class AudioStream {
           try {
             c.enqueue(new Uint8Array(await blob.arrayBuffer()));
           } catch (err) {
-            console.warn(err.message);
+            console.warn(`Response.arrayBuffer(): ${err.message}`);
           }
         },
         flush() {
@@ -78,9 +79,7 @@ class AudioStream {
       } catch (err) {
         console.warn(err.message);
       }
-      this.resolve(
-        new Response(this.outputStream).blob()
-      );
+      this.resolve(new Response(this.outputStream).blob());
     };
     this.recorder.ondataavailable = async ({ data }) => {
       if (data.size > 0) {
@@ -103,27 +102,35 @@ class AudioStream {
   async nativeMessageStream() {
     return new Promise((resolve) => {
       onmessage = (e) => {
-        if (!this.source) {
-          this.source = e.source;
-        }
-        if (e.data === 1) {
-          this.source.postMessage({ type: 'start', message: this.stdin }, '*');
-        }
-        if (e.data === 0) {
-          document.querySelectorAll(`[src="${this.src}"]`).forEach((f) => {
-            document.body.removeChild(f);
-          });
-          onmessage = null;
-        }
-        if (e.data instanceof ReadableStream) {
-          this.stdout = e.data;
-          resolve(this.captureSystemAudio());
+        console.log(e);
+        if (e.origin === this.src.origin) {
+          if (!this.source) {
+            this.source = e.source;
+          }
+          if (e.data === 1) {
+            this.source.postMessage(
+              { type: 'start', message: this.stdin },
+              '*'
+            );
+          }
+          if (e.data === 0) {
+            document
+              .querySelectorAll(`[src="${this.src.href}"]`)
+              .forEach((f) => {
+                document.body.removeChild(f);
+              });
+            onmessage = null;
+          }
+          if (e.data instanceof ReadableStream) {
+            this.stdout = e.data;
+            resolve(this.captureSystemAudio());
+          }
         }
       };
       this.transferableWindow = document.createElement('iframe');
       this.transferableWindow.style.display = 'none';
       this.transferableWindow.name = location.href;
-      this.transferableWindow.src = this.src;
+      this.transferableWindow.src = this.src.href;
       document.body.appendChild(this.transferableWindow);
     }).catch((err) => {
       throw err;
@@ -151,11 +158,13 @@ class AudioStream {
                 console.error(e.message);
               },
               close: async () => {
+                console.log('Done writing input stream.');
                 if (channelData.length) {
                   this.inputController.enqueue(channelData);
                 }
                 while (this.inputController.desiredSize < 0) {
                   await scheduler.postTask(() => {});
+                  console.log(this.inputController.desiredSize);
                 }
                 this.inputController.close();
                 console.log('Done writing input stream.');

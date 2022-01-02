@@ -189,14 +189,14 @@ class AudioStream {
                 console.error(e.message);
               },
               write: async ({ timestamp }) => {
-                const uint8 = new Int8Array(441 * 4);
+                const int8 = new Int8Array(441 * 4);
                 const { value, done } = await this.inputReader.read();
-                if (!done) uint8.set(new Int8Array(value));
-                const uint16 = new Uint16Array(uint8.buffer);
+                if (!done) int8.set(new Int8Array(value));
+                const int16 = new Int16Array(int8.buffer);
                 // https://stackoverflow.com/a/35248852
                 const channels = [new Float32Array(441), new Float32Array(441)];
-                for (let i = 0, j = 0, n = 1; i < uint16.length; i++) {
-                  const int = uint16[i];
+                for (let i = 0, j = 0, n = 1; i < int16.length; i++) {
+                  const int = int16[i];
                   // If the high bit is on, then it is a negative number, and actually counts backwards.
                   const float =
                     int >= 0x8000 ? -(0x10000 - int) / 0x8000 : int / 0x7fff;

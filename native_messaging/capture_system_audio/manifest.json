@@ -2,13 +2,31 @@
   "name": "Capture system audio",
   "version": "1.0",
   "manifest_version": 3,
-  "permissions": [ "nativeMessaging" ],
-  "host_permissions": [ "<all_urls>" ],
-  "web_accessible_resources": [    {
-      "resources": [ "*.html", "*.js" ],
+  "permissions": [ 
+    "nativeMessaging", 
+    "tabs", 
+    "activeTab", 
+    "scripting", 
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "48":"icons-icons_dot_com_download_music_icon_123878_1.png"
+  },
+  "web_accessible_resources": [{
+      "resources": [ "*.html", "*.js", "*.png" ],
       "matches": [ "<all_urls>" ],
-      "extensions": [ "<id>" ]
+      "extensions": [ ]
   }],
-  "action": {},
+  "action": {
+    "default_icon": {
+      "16":"media-record-1-16x16.png", 
+      "32":"media-record-1-32x32.png", 
+      "48":"media-record-1-48x48.png", 
+      "128":"media-record-1-128x128.png"
+    }
+  },
   "author": "guest271314"
 }

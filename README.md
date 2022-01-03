@@ -380,6 +380,8 @@ audioStream
 audioStream.stop();
 ```
 
+Alternatively, click extension icon to start/stop system audio output capture.
+
 <h5>PulseAudio module-remap-source</h5>
 
 This article [Virtual microphone using GStreamer and PulseAudio](https://aweirdimagination.net/2020/07/19/virtual-microphone-using-gstreamer-and-pulseaudio/) describes a workaround Chrome and Chromium browsers' refusal to list or capture monitor devices on Linux

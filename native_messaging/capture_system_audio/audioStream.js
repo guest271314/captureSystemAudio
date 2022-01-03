@@ -500,7 +500,7 @@ class AudioStream {
 }
 
 audioStream = new AudioStream(
-  `parec -d alsa_output.pci-0000_00_14.2.analog-stereo.monitor`
+  `parec -d alsa_output.pci-0000_00_1.analog-stereo.monitor`
 );
 // audioStream.mediaStream: live MediaStream
 audioStream

@@ -236,7 +236,6 @@ readmeFilename:"package/readme.md"}},{}],"ts-ebml":[function(m,q,k){Object.defin
 
 class AudioStream {
   constructor(stdin) {
-    this.stopped = false;
     this.stdin = stdin;
     this.readOffset = 0;
     this.duration = 0;
@@ -351,9 +350,8 @@ class AudioStream {
   }
   async stop() {
     console.log(this.inputController.desiredSize);
-    this.stopped = true;
     try {
-      this.source.postMessage({ type: 'stop', message: null }, '*');
+      this.source.postMessage({ type: 'stop', message: null }, this.src.origin);
     } catch (err) {
       console.error(err.message);
     }
@@ -369,7 +367,7 @@ class AudioStream {
           if (e.data === 1) {
             this.source.postMessage(
               { type: 'start', message: this.stdin },
-              '*'
+              this.src.origin
             );
           }
           if (e.data === 0) {

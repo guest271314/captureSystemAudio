@@ -417,7 +417,6 @@ class AudioStream {
                 console.error(e.message);
               },
               close: async () => {
-                console.log('Done writing input stream.');
                 if (channelData.length) {
                   this.inputController.enqueue(channelData);
                 }

@@ -360,7 +360,7 @@ At `console` or Sources -> Snippets at origins set in `"matches"` in `manifest.j
 
 ```
 var audioStream = new AudioStream(
-  `parec -d alsa_output.pci-0000_00_1b.0.analog-stereo.monitor`
+  `parec -d @DEFAULT_MONITOR@`
 );
 // audioStream.mediaStream: live MediaStream
 audioStream

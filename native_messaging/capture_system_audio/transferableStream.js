@@ -1,5 +1,26 @@
 onload = () => {
-  const { readable, writable } = new TransformStream();
+  const { readable, writable } = new TransformStream(
+    {
+      transform(value, c) {
+        c.enqueue(value);
+      },
+      flush() {
+        console.log('Flush.');
+      },
+    },
+    {
+      highWaterMark: 1,
+      size(chunk) {
+        return chunk.length;
+      },
+    },
+    {
+      highWaterMark: 1,
+      size(chunk) {
+        return chunk.length;
+      },
+    }
+  );
   const writer = writable.getWriter();
   const id = 'capture_system_audio';
   let port = chrome.runtime.connectNative(id);

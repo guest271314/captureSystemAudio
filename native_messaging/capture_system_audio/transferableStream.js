@@ -1,39 +1,37 @@
 onload = () => {
-  const { readable, writable } = new TransformStream(
-    {
-      transform(value, c) {
-        c.enqueue(value);
-      },
-      flush() {
-        console.log('Flush.');
-      },
-    },
-    {
-      highWaterMark: 1,
-      size(chunk) {
-        return chunk.length;
-      },
-    },
-    {
-      highWaterMark: 1,
-      size(chunk) {
-        return chunk.length;
-      },
+  const { readable, writable } = new TransformStream({
+    transform(value, c) {
+      c.enqueue(value);
+    }, 
+    flush() {
+      console.log('Flush.');
     }
-  );
+  }, {
+    highWaterMark: 1, 
+    size(chunk) {
+      return chunk.length;
+    }    
+  }, {
+    highWaterMark: 1, 
+    size(chunk) {
+      return chunk.length;
+    }    
+  });
   const writer = writable.getWriter();
   const id = 'capture_system_audio';
   let port = chrome.runtime.connectNative(id);
-  async function handleMessage (value) {
+  let handleMessage = async (value) => {   
     try {
-      await writer.ready;
-      await writer.write(new Uint8Array(JSON.parse(value)));
+      if (writable.locked) {
+        await writer.ready;
+        await writer.write(new Uint8Array(JSON.parse(value)));
+      }
     } catch (e) {
       console.log(e);
     }
     return true;
   };
-  port.onDisconnect.addListener((e) => {
+  port.onDisconnect.addListener(async (e) => {
     console.warn(e.message);
   });
   port.onMessage.addListener(handleMessage);
@@ -59,6 +57,7 @@ onload = () => {
         parent.postMessage(0, name);
         onmessage = null;
         await chrome.storage.local.clear();
+
       } catch (err) {
         console.warn(err.message);
       }

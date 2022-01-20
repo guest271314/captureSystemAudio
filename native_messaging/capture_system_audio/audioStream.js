@@ -445,7 +445,7 @@ class AudioStream {
               },
             })
           )
-          .catch(console.warn),
+          .catch(console.log),
         this.audioReadable
           .pipeTo(
             new WritableStream({
@@ -491,7 +491,7 @@ class AudioStream {
       ]);
       return this.promise;
     } catch (err) {
-      console.error(err);
+      console.log(err);
     }
   }
 }
@@ -530,11 +530,11 @@ audioStream
           await writer.write(blob);
           await writer.close();
         } catch (err) {
-          console.error(err);
+          console.log(err);
         }
       };
     }
     audioStream = AudioStream = void 0;
   })
-  .catch(console.error);
+  .catch(console.log);
 }

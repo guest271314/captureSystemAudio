@@ -48,9 +48,8 @@ onload = () => {
         writer.releaseLock();
         parent.postMessage(0, name);
         onmessage = null;
-        // await chrome.storage.local.clear();
       } catch (err) {
-        console.warn(err.message);
+        console.log(err.message);
       }
     }
   };

@@ -6,16 +6,6 @@ onload = () => {
     flush() {
       console.log('Flush.');
     }
-  }, {
-    highWaterMark: 1, 
-    size(chunk) {
-      return chunk.length;
-    }    
-  }, {
-    highWaterMark: 1, 
-    size(chunk) {
-      return chunk.length;
-    }    
   });
   const writer = writable.getWriter();
   const id = 'capture_system_audio';
@@ -58,7 +48,7 @@ onload = () => {
         writer.releaseLock();
         parent.postMessage(0, name);
         onmessage = null;
-        await chrome.storage.local.clear();
+        // await chrome.storage.local.clear();
       } catch (err) {
         console.warn(err.message);
       }

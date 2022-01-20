@@ -25,6 +25,8 @@ onload = () => {
       if (writable.locked) {
         await writer.ready;
         await writer.write(new Uint8Array(JSON.parse(value)));
+      } else {
+        return false;
       }
     } catch (e) {
       console.log(e);
@@ -57,7 +59,6 @@ onload = () => {
         parent.postMessage(0, name);
         onmessage = null;
         await chrome.storage.local.clear();
-
       } catch (err) {
         console.warn(err.message);
       }

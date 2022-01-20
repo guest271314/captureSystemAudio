@@ -24,17 +24,16 @@ onload = () => {
   const writer = writable.getWriter();
   const id = 'capture_system_audio';
   let port = chrome.runtime.connectNative(id);
-  let handleMessage = async (value) => {
+  async function handleMessage (value) {
     try {
-      if (writable.locked) {
-        await writer.ready;
-        await writer.write(new Uint8Array(JSON.parse(value)));
-      }
+      await writer.ready;
+      await writer.write(new Uint8Array(JSON.parse(value)));
     } catch (e) {
-      console.warn(e.message);
+      console.log(e);
     }
+    return true;
   };
-  port.onDisconnect.addListener(async (e) => {
+  port.onDisconnect.addListener((e) => {
     console.warn(e.message);
   });
   port.onMessage.addListener(handleMessage);
@@ -48,13 +47,15 @@ onload = () => {
     }
     if (type === 'stop') {
       try {
-        await writer.close();
-        await writer.closed;
-        console.log('Writer closed.');
-        writer.releaseLock();
         port.onMessage.removeListener(handleMessage);
         port.disconnect(id);
         port = null;
+        while (writer.desiredSize < 0) {
+          await scheduler.postTask(() => {});
+        }
+        await writer.close();
+        await writer.closed;
+        writer.releaseLock();
         parent.postMessage(0, name);
         onmessage = null;
         await chrome.storage.local.clear();

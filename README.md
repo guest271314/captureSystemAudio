@@ -336,7 +336,7 @@ onclick = async _ => {
 };
 ```
 
-<h6>Web Accessible Resources, PHP passthru(), parec, fetch(), Transferable Streams, Media Capture Transform ("Breakout Box")</h6>
+<h6>Web Accessible Resources, Transferable Streams, Media Capture Transform ("Breakout Box")</h6>
 
 Utilize Chromium extension with `"web_accessible_resources"` set to an HTML file that we load as an `<iframe>` in Web pages listed in `"matches"`. Stream from Native Messaging host to `<iframe>`, enqueue data in a `ReadableStream` then transfer the stream to `parent` with `postMessage()`, read the stream in "real-time", write values to a `MediaStreamTrackGenerator`.
 

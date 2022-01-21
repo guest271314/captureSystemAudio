@@ -240,8 +240,13 @@ class AudioStream {
     this.readOffset = 0;
     this.duration = 0;
     this.src = new URL(
-      'chrome-extension://<id>/transferableStream.html'
+      'chrome-extension://pbcacennomncannjbmdjogheacknncbf/transferableStream.html'
     );
+    document
+    .querySelectorAll(`[src="${this.src.href}"]`)
+    .forEach((f) => {
+      document.body.removeChild(f);
+    });
     this.ac = new AudioContext({
       sampleRate: 44100,
       latencyHint: 0,
@@ -270,12 +275,11 @@ class AudioStream {
     this.generator = new MediaStreamTrackGenerator({
       kind: 'audio',
     });
-    const { writable } = this.generator;
-    this.writable = writable;
+    const { writable: audioWritable } = this.generator;
+    this.audioWritable = audioWritable;
     const { readable: audioReadable } = this.processor;
     this.audioReadable = audioReadable;
-    this.audioReadableAbortable = new AbortController();
-    this.audioWriter = this.writable.getWriter();
+    this.audioWriter = this.audioWritable.getWriter();
     this.mediaStream = new MediaStream([this.generator]);
     this.resolve = void 0;
     this.promise = new Promise((_) => (this.resolve = _));
@@ -351,7 +355,7 @@ class AudioStream {
   async stop() {
     console.log(this.inputController.desiredSize);
     try {
-      this.source.postMessage({ type: 'stop', message: null }, this.src.origin);
+      this.source.postMessage({ type: 'stop', message: this.inputController.desiredSize }, '*');
     } catch (err) {
       console.error(err.message);
     }
@@ -367,7 +371,7 @@ class AudioStream {
           if (e.data === 1) {
             this.source.postMessage(
               { type: 'start', message: this.stdin },
-              this.src.origin
+              '*'
             );
           }
           if (e.data === 0) {
@@ -445,7 +449,7 @@ class AudioStream {
               },
             })
           )
-          .catch(console.log),
+          .catch(console.warn),
         this.audioReadable
           .pipeTo(
             new WritableStream({
@@ -453,13 +457,13 @@ class AudioStream {
                 console.error(e.message);
               },
               write: async ({ timestamp }) => {
-                const int8 = new Int8Array(441 * 4);
+                const uint8 = new Int8Array(441 * 4);
                 const { value, done } = await this.inputReader.read();
-                if (!done) int8.set(new Int8Array(value));
-                const int16 = new Int16Array(int8.buffer);
+                if (!done) uint8.set(new Int8Array(value));
+                const uint16 = new Uint16Array(uint8.buffer);
                 // https://stackoverflow.com/a/35248852
                 const channels = [new Float32Array(441), new Float32Array(441)];
-                for (let i = 0, j = 0, n = 1; i < int16.length; i++) {
+                for (let i = 0, j = 0, n = 1; i < uint16.length; i++) {
                   const int = uint16[i];
                   // If the high bit is on, then it is a negative number, and actually counts backwards.
                   const float =
@@ -486,18 +490,20 @@ class AudioStream {
               },
             })
           )
-          .catch(console.warn),
+          .catch((e) => {
+            console.error(e);
+          }),
         this.ac.resume(),
       ]);
       return this.promise;
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 }
 
 audioStream = new AudioStream(
-  `parec -d alsa_output.pci-0000_00_1.analog-stereo.monitor`
+  `parec -d @DEFAULT_MONITOR@`
 );
 // audioStream.mediaStream: live MediaStream
 audioStream
@@ -507,6 +513,8 @@ audioStream
     console.log(audioStream);
     const blob = new Blob([ab], { type: 'audio/webm;codecs=opus' });
     console.log(URL.createObjectURL(blob));
+    const {origin} = audioStream.src;
+    globalThis.audioStream = AudioStream = null;
     let permission = await navigator.permissions.query({
       name: 'notifications',
     });
@@ -514,27 +522,30 @@ audioStream
       permission = await Notification.requestPermission();
     }
     if (permission.state === 'granted' || permission === 'granted') {
-      const notification = new Notification('Save file?', {
+      const saveFileNotification = new Notification('Save file?', {
         body: `Click "Activate" to download captured system audio recording.`,
-        icon: `${audioStream.src.origin}/icons-icons_dot_com_download_music_icon_123878_2.png`,
+        icon: `${origin}/download_music_icon.png`,
       });
-      notification.onclick = async (e) => {
-        console.log(e);
+      saveFileNotification.onclick = async (e) => {
         try {
           const handle = await showSaveFilePicker({
             startIn: 'music',
             suggestedName: 'recording' + new Date().getTime() + '.webm',
           });
+          console.log(handle);
           const writable = await handle.createWritable();
           const writer = writable.getWriter();
           await writer.write(blob);
           await writer.close();
         } catch (err) {
-          console.log(err);
+          console.error(err);
         }
       };
+      saveFileNotification.onshow = async (e) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * 30));
+        e.target.close();
+      };
     }
-    audioStream = AudioStream = void 0;
   })
-  .catch(console.log);
+  .catch(console.error);
 }

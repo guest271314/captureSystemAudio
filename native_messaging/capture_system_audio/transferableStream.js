@@ -1,30 +1,27 @@
 onload = () => {
-  const { readable, writable } = new TransformStream({
-    transform(value, c) {
-      c.enqueue(value);
-    }, 
+    const { readable, writable } = new TransformStream({
+    transform(value, controller) {
+      controller.enqueue(value);
+    },
     flush() {
       console.log('Flush.');
     }
   });
   const writer = writable.getWriter();
   const id = 'capture_system_audio';
-  let port = chrome.runtime.connectNative(id);
-  let handleMessage = async (value) => {   
+  const port = chrome.runtime.connectNative(id);
+  port.name = id;
+  async function handleMessage(value, port) {
     try {
-      if (writable.locked) {
-        await writer.ready;
-        await writer.write(new Uint8Array(JSON.parse(value)));
-      } else {
-        return false;
-      }
+      await writer.ready;
+      await writer.write(new Uint8Array(JSON.parse(value)));
     } catch (e) {
-      console.log(e);
+      console.error(e.message);
     }
     return true;
-  };
+  }
   port.onDisconnect.addListener(async (e) => {
-    console.warn(e.message);
+    console.log(e.message);
   });
   port.onMessage.addListener(handleMessage);
   onmessage = async (e) => {
@@ -37,19 +34,19 @@ onload = () => {
     }
     if (type === 'stop') {
       try {
-        port.onMessage.removeListener(handleMessage);
         port.disconnect(id);
-        port = null;
-        while (writer.desiredSize < 0) {
+        console.log(writer.desiredSize, message);
+        while (writer.desiredSize < 1) {
           await scheduler.postTask(() => {});
         }
         await writer.close();
         await writer.closed;
-        writer.releaseLock();
+        console.log(writer.desiredSize);
         parent.postMessage(0, name);
         onmessage = null;
+        await chrome.storage.local.clear();
       } catch (err) {
-        console.log(err.message);
+        console.error(err.message);
       }
     }
   };

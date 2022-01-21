@@ -240,7 +240,7 @@ class AudioStream {
     this.readOffset = 0;
     this.duration = 0;
     this.src = new URL(
-      'chrome-extension://pbcacennomncannjbmdjogheacknncbf/transferableStream.html'
+      'chrome-extension://<id>/transferableStream.html'
     );
     document
     .querySelectorAll(`[src="${this.src.href}"]`)

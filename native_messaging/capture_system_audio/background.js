@@ -175,12 +175,14 @@ async function _audioStream(src) {
                       await scheduler.postTask(() => {});
                     }
                     this.inputController.close();
-
+                    while (this.audioWriter.desiredSize < 0) {
+                      await scheduler.postTask(() => {});
+                    }
+                    await this.audioWriter.close();
+                    await this.audioWriter.closed;
                     this.msd.disconnect();
                     this.osc.disconnect();
                     this.track.stop();
-                    await this.audioWriter.close();
-                    await this.audioWriter.closed;
                     this.generator.stop();
                     await this.ac.close();
                     console.log('Done writing input stream.');
@@ -197,7 +199,12 @@ async function _audioStream(src) {
                   write: async ({ timestamp }) => {
                     const int8 = new Int8Array(441 * 4);
                     const { value, done } = await this.inputReader.read();
-                    if (!done) int8.set(new Int8Array(value));
+                    if (!done) {
+                      int8.set(new Int8Array(value));
+                    } else {
+                      console.log({done});
+                      return this.audioWriter.closed;
+                    }
                     const int16 = new Int16Array(int8.buffer);
                     // https://stackoverflow.com/a/35248852
                     const channels = [
@@ -241,6 +248,7 @@ async function _audioStream(src) {
                       numberOfFrames: 441,
                     });
                     this.duration += frame.duration;
+                    await this.audioWriter.ready;
                     await this.audioWriter.write(frame);
                     if (this.mimeType.includes('mp3')) {
                       const mp3buf = this.mp3encoder.encodeBuffer(

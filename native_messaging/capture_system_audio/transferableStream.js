@@ -1,11 +1,11 @@
 onload = () => {
-    const { readable, writable } = new TransformStream({
+  const { readable, writable } = new TransformStream({
     transform(value, controller) {
       controller.enqueue(value);
     },
     flush() {
       console.log('Flush.');
-    }
+    },
   });
   const writer = writable.getWriter();
   const id = 'capture_system_audio';

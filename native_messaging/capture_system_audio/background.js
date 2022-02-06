@@ -71,7 +71,12 @@ async function _audioStream(src) {
         if (this.mimeType.includes('mp3')) {
           const { lamejs } = await import(`${this.src.origin}/lame.min.js`);
           this.mp3encoder = new lamejs.Mp3Encoder(2, 44100, 128);
-          this.mp3Data = [];
+          this.mp3controller = void 0;
+          this.mp3stream = new ReadableStream({
+            start: (_) => {
+              return (this.mp3controller = _);
+            },
+          });
         } else if (this.mimeType.includes('opus')) {
           const {
             Decoder,
@@ -256,7 +261,7 @@ async function _audioStream(src) {
                         rightChannel
                       );
                       if (mp3buf.length > 0) {
-                        this.mp3Data.push(mp3buf);
+                        this.mp3controller.enqueue(new Uint8Array(mp3buf));
                       }
                     }
                   },
@@ -277,9 +282,10 @@ async function _audioStream(src) {
             if (this.mimeType.includes('mp3')) {
               const mp3buf = this.mp3encoder.flush(); //finish writing mp3
               if (mp3buf.length > 0) {
-                this.mp3Data.push(new Int8Array(mp3buf));
+                this.mp3controller.enqueue(new Uint8Array(mp3buf));
+                this.mp3controller.close();
               }
-              this.resolve(new Blob(this.mp3Data, { type: this.mimeType }));
+              this.resolve(new Response(this.mp3stream).arrayBuffer());
             }
           } catch (err) {
             console.error(err);

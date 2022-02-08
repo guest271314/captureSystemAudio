@@ -351,11 +351,6 @@ async function _audioStream(src) {
               console.error(err);
             }
           };
-
-          saveFileNotification.onshow = async (e) => {
-            await new Promise((resolve) => setTimeout(resolve, 1000 * 60));
-            e.target.close();
-          };
         }
       })
       .catch(console.error);

@@ -12,9 +12,12 @@ onload = () => {
   const port = chrome.runtime.connectNative(id);
   port.name = id;
   async function handleMessage(value, port) {
+    if (!Array.isArray(value)) {
+      value = JSON.parse(value);
+    }
     try {
       await writer.ready;
-      await writer.write(new Uint8Array(JSON.parse(value)));
+      await writer.write(new Uint8Array(value));
     } catch (e) {
       console.error(e.message);
     }
@@ -22,6 +25,7 @@ onload = () => {
   }
   port.onDisconnect.addListener(async (e) => {
     console.log(e.message);
+    await chrome.storage.local.clear();
   });
   port.onMessage.addListener(handleMessage);
   onmessage = async (e) => {

@@ -4,7 +4,8 @@
 // https://discourse.mozilla.org/t/webextension-with-native-messaging-c-app-side/30821
 // https://github.com/nlohmann/json
 #include <iostream>
-#include "json.hpp"
+#include <iomanip>
+#include <nlohmann/json.hpp>
 using namespace std;
 using namespace nlohmann;
 

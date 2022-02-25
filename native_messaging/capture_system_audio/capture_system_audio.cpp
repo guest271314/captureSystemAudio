@@ -4,7 +4,6 @@
 // https://discourse.mozilla.org/t/webextension-with-native-messaging-c-app-side/30821
 // https://github.com/nlohmann/json
 #include <iostream>
-#include <iomanip>
 #include <nlohmann/json.hpp>
 using namespace std;
 using namespace nlohmann;
@@ -58,18 +57,13 @@ int main(int argc, char *argv[]) {
       byte buffer[bufferSize];
       size_t count;
       while ((count = fread(buffer, 1, bufferSize, pipe)) > 0) {
-        stringstream data;
         // S16NE PCM from parec to integers in JSON array
-        data << "[";
+        json data = json::array();
         for (size_t i = 0; i < count; i++) {
-          data << (int)buffer[i];
-          if (i < count - 1) {
-            data << ",";
-          }
+          data.push_back((int)buffer[i]);
         }
-        data << "]";
         // send JSON array to Native Messaging local client
-        send_message(encode_message(data.str()));
+        send_message(encode_message(data));
       }
     }
   }

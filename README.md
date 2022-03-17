@@ -348,13 +348,15 @@ Set `capture_system_audio.py` to executable.
 
 `chmod u+x index.php capture_system_audio.py`
 
+(See also C++ version [capture_system_audio.cpp](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio.cpp), which depends on https://github.com/nlohmann/json)
+
 Copy Native Messaging manifest to Chromium 
 
 `cp capture_system_audio.json ~/.config/chromium/NativeMessagingHosts`
 
 or Chrome configuration folder.
 
-`cp capture_system_audio.json ~/.config/google.chrome-unstable/NativeMessagingHosts`
+`cp capture_system_audio.json ~/.config/google-chrome-unstable/NativeMessagingHosts`
 
 At `console` or Sources -> Snippets at origins set in `"matches"` in `manifest.json`.
 

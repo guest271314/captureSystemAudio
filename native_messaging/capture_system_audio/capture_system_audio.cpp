@@ -2,67 +2,58 @@
 // https://browserext.github.io/native-messaging/
 // https://developer.chrome.com/docs/apps/nativeMessaging/
 // https://discourse.mozilla.org/t/webextension-with-native-messaging-c-app-side/30821
-// https://github.com/nlohmann/json
 #include <iostream>
-#include <nlohmann/json.hpp>
+#include <sstream>
 using namespace std;
-using namespace nlohmann;
 
-struct message_t {
-  string content;
-  uint32_t length;
-};
-
-// Read a message from stdin and decode it.
-json get_message() {
-  char raw_length[4];
-  fread(raw_length, 4, sizeof(char), stdin);
-  uint32_t message_length = *reinterpret_cast<uint32_t*>(raw_length);
-  if (!message_length) {
-    exit(EXIT_SUCCESS);
-  }
-  char message[message_length];
-  fread(message, message_length, sizeof(char), stdin);
-  string m(message, message + sizeof message / sizeof message[0]);
-  return json::parse(m);
-}
-
-// Encode a message for transmission, given its content.
-message_t encode_message(json content) {
-  string encoded_content = content.dump();
-  message_t m;
-  m.content = encoded_content;
-  m.length = (uint32_t)encoded_content.length();
-  return m;
-}
-
-// Send an encoded message to stdout.
-void send_message(message_t encoded_message) {
-  char* raw_length = reinterpret_cast<char*>(&encoded_message.length);
-  fwrite(raw_length, 4, sizeof(char), stdout);
-  fwrite(encoded_message.content.c_str(), encoded_message.length, sizeof(char),
-         stdout);
+void sendMessage(string message) {
+  auto* data = message.data();
+  auto size = uint32_t(message.size());
+  char* length = reinterpret_cast<char*>(&size);
+  fwrite(length, 4, sizeof(char), stdout);
+  fwrite(message.c_str(), message.length(), sizeof(char), stdout);
   fflush(stdout);
 }
 
-int main(int argc, char* argv[]) {
+string getMessage() {
+  char length[4];
+  fread(length, 4, sizeof(char), stdin);
+  uint32_t len = *reinterpret_cast<uint32_t*>(length);
+  if (!len) {
+    exit(EXIT_SUCCESS);
+  }
+  char message[len];
+  fread(message, len, sizeof(char), stdin);
+  string content(message, message + sizeof message / sizeof message[0]);
+  return content;
+}
+
+int main() {
   while (true) {
-    json message = get_message();
-    auto command = message.get<std::string>();
-    // https://github.com/paullouisageneau/libdatachannel/issues/544#issuecomment-1024739214
-    // https://www.reddit.com/r/cpp_questions/comments/swr1tk/comment/hxral9f/
-    FILE* pipe = popen(command.c_str(), "r");
-    size_t bufferSize = 1024;
-    byte buffer[bufferSize];
-    size_t count;
-    while ((count = fread(buffer, 1, bufferSize, pipe)) > 0) {
-      // S16NE PCM from parec to integers in JSON array
-      json data = json::array();
-      for (size_t i = 0; i < count; i++) {
-        data.push_back((int)buffer[i]);
+    auto message = getMessage();
+    const char* command = message.data();
+    stringstream input;
+    // Exclude double quotation marks from beginning and end of string
+    for (int j = 1; j < message.length() - 1; j++) {
+      input << message[j];
+    }
+    FILE* pipe = popen(input.str().c_str(), "r");
+    while (true) {
+      unsigned char buffer[1024];
+      int count = fread(buffer, 1, sizeof buffer, pipe);
+      if (count == 0 || count == -1) {
+        break;
       }
-      // send JSON array to Native Messaging local client
-      send_message(encode_message(data));
+      stringstream output;
+      output << "[";
+      for (int i = 0; i < count; i++) {
+        output << (int)buffer[i];
+        if (i < count - 1) {
+          output << ",";
+        }
+      }
+      output << "]";
+      sendMessage(output.str());
     }
   }
 }

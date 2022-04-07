@@ -7,9 +7,9 @@
 using namespace std;
 
 void sendMessage(string message) {
-  auto *data = message.data();
+  auto* data = message.data();
   auto size = uint32_t(message.size());
-  char *length = reinterpret_cast<char *>(&size);
+  char* length = reinterpret_cast<char*>(&size);
   fwrite(length, 4, sizeof(char), stdout);
   fwrite(message.c_str(), message.length(), sizeof(char), stdout);
   fflush(stdout);
@@ -18,7 +18,7 @@ void sendMessage(string message) {
 string getMessage() {
   char length[4];
   fread(length, 4, sizeof(char), stdin);
-  uint32_t len = *reinterpret_cast<uint32_t *>(length);
+  uint32_t len = *reinterpret_cast<uint32_t*>(length);
   if (!len) {
     exit(EXIT_SUCCESS);
   }
@@ -31,13 +31,13 @@ string getMessage() {
 int main() {
   while (true) {
     auto message = getMessage();
-    const char *command = message.data();
+    const char* command = message.data();
     stringstream input;
     // Exclude double quotation marks from beginning and end of string
     for (int j = 1; j < message.length() - 1; j++) {
       input << message[j];
     }
-    FILE *pipe = popen(input.str().c_str(), "r");
+    FILE* pipe = popen(input.str().c_str(), "r");
     while (true) {
       unsigned char buffer[1024];
       int count = fread(buffer, 1, sizeof(buffer), pipe);

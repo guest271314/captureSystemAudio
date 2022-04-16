@@ -31,7 +31,6 @@ string getMessage() {
 int main() {
   while (true) {
     auto message = getMessage();
-    const char* command = message.data();
     stringstream input;
     // Exclude double quotation marks from beginning and end of string
     for (int j = 1; j < message.length() - 1; j++) {

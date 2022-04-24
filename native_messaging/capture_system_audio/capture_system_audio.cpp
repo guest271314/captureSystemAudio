@@ -31,11 +31,8 @@ string getMessage() {
 int main() {
   while (true) {
     string message = getMessage();
-    stringstream input;
     // Exclude double quotation marks from beginning and end of string
-    for (int j = 1; j < message.length() - 1; j++) {
-      input << message[j];
-    }
+    string input = message.substr(1, message.length() - 2);
     FILE* pipe = popen(input.str().c_str(), "r");
     while (true) {
       unsigned char buffer[1024];

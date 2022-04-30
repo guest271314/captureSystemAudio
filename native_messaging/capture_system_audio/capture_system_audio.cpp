@@ -3,7 +3,6 @@
 // https://developer.chrome.com/docs/apps/nativeMessaging/
 // https://discourse.mozilla.org/t/webextension-with-native-messaging-c-app-side/30821
 #include <iostream>
-#include <sstream>
 using namespace std;
 
 void sendMessage(string message) {
@@ -37,16 +36,16 @@ int main() {
     while (true) {
       unsigned char buffer[1024];
       int count = fread(buffer, 1, sizeof(buffer), pipe);
-      stringstream output;
-      output << "[";
+      string output;
+      output += "[";
       for (int i = 0; i < count; i++) {
-        output << (int)buffer[i];
+        output += to_string((int)buffer[i]);
         if (i < count - 1) {
-          output << ",";
+          output += ",";
         }
       }
-      output << "]";
-      sendMessage(output.str());
+      output += "]";
+      sendMessage(output);
     }
   }
 }

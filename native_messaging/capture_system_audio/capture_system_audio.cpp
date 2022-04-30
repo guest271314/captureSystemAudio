@@ -33,7 +33,7 @@ int main() {
     string message = getMessage();
     // Exclude double quotation marks from beginning and end of string
     string input = message.substr(1, message.length() - 2);
-    FILE* pipe = popen(input.str().c_str(), "r");
+    FILE* pipe = popen(input.c_str(), "r");
     while (true) {
       unsigned char buffer[1024];
       int count = fread(buffer, 1, sizeof(buffer), pipe);

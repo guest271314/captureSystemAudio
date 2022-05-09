@@ -34,7 +34,7 @@ int main() {
     string input = message.substr(1, message.length() - 2);
     FILE* pipe = popen(input.c_str(), "r");
     while (true) {
-      unsigned char buffer[1024];
+      unsigned char buffer[4096];
       int count = fread(buffer, 1, sizeof(buffer), pipe);
       string output;
       output += "[";

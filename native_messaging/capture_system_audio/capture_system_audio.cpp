@@ -6,7 +6,7 @@
 using namespace std;
 
 void sendMessage(string message) {
-  auto size = uint32_t(message.size());
+  uint32_t size = uint32_t(message.size());
   char *length = reinterpret_cast<char *>(&size);
   fwrite(length, 4, sizeof(char), stdout);
   fwrite(message.c_str(), message.length(), sizeof(char), stdout);

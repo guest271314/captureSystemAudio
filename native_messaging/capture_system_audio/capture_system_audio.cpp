@@ -6,9 +6,9 @@
 using namespace std;
 
 void sendMessage(string message) {
-  auto* data = message.data();
+  auto *data = message.data();
   auto size = uint32_t(message.size());
-  char* length = reinterpret_cast<char*>(&size);
+  char *length = reinterpret_cast<char *>(&size);
   fwrite(length, 4, sizeof(char), stdout);
   fwrite(message.c_str(), message.length(), sizeof(char), stdout);
   fflush(stdout);
@@ -17,7 +17,7 @@ void sendMessage(string message) {
 string getMessage() {
   char length[4];
   fread(length, 4, sizeof(char), stdin);
-  uint32_t len = *reinterpret_cast<uint32_t*>(length);
+  uint32_t len = *reinterpret_cast<uint32_t *>(length);
   if (!len) {
     exit(EXIT_SUCCESS);
   }
@@ -28,24 +28,22 @@ string getMessage() {
 }
 
 int main() {
+  string message = getMessage();
+  // Exclude double quotation marks from beginning and end of string
+  string input = message.substr(1, message.length() - 2);
+  FILE *pipe = popen(input.c_str(), "r");
   while (true) {
-    string message = getMessage();
-    // Exclude double quotation marks from beginning and end of string
-    string input = message.substr(1, message.length() - 2);
-    FILE* pipe = popen(input.c_str(), "r");
-    while (true) {
-      unsigned char buffer[1764]; // 441 * 4
-      int count = fread(buffer, 1, sizeof(buffer), pipe);
-      string output;
-      output += "[";
-      for (int i = 0; i < count; i++) {
-        output += to_string((int)buffer[i]);
-        if (i < count - 1) {
-          output += ",";
-        }
+    unsigned char buffer[1764]; // 441 * 4
+    int count = fread(buffer, 1, sizeof(buffer), pipe);
+    string output;
+    output += "[";
+    for (int i = 0; i < count; i++) {
+      output += to_string((int)buffer[i]);
+      if (i < count - 1) {
+        output += ",";
       }
-      output += "]";
-      sendMessage(output);
     }
+    output += "]";
+    sendMessage(output);
   }
 }

@@ -39,7 +39,7 @@ try:
         os.set_blocking(process.stdout.fileno(), False)
         for chunk in iter(lambda: process.stdout.read(), b''):
             if chunk is not None:
-                encoded = str([int('%02X' % i, 16) for i in chunk])
+                encoded = [int('%02X' % i, 16) for i in chunk]
                 sendMessage(encodeMessage(encoded))                       
 except Exception as e:
     sys.stdout.buffer.flush()

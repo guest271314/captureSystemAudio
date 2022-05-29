@@ -33,10 +33,9 @@ int main() {
   FILE *pipe = popen(input.c_str(), "r");
   while (true) {
     unsigned char buffer[1764]; // 441 * 4
-    int count = fread(buffer, 1, sizeof(buffer), pipe);
-    string output;
-    output += "[";
-    for (int i = 0; i < count; i++) {
+    size_t count = fread(buffer, 1, sizeof(buffer), pipe);
+    string output = "[";
+    for (size_t i = 0; i < count; i++) {
       output += to_string((int)buffer[i]);
       if (i < count - 1) {
         output += ",";

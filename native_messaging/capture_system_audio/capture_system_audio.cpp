@@ -32,7 +32,7 @@ int main() {
   string input = message.substr(1, message.length() - 2);
   FILE *pipe = popen(input.c_str(), "r");
   while (true) {
-    unsigned char buffer[1764]; // 441 * 4
+    uint8_t buffer[1764]; // 441 * 4
     size_t count = fread(buffer, 1, sizeof(buffer), pipe);
     string output = "[";
     for (size_t i = 0; i < count; i++) {

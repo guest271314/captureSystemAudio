@@ -342,19 +342,24 @@ Utilize Chromium extension with `"web_accessible_resources"` set to an HTML file
 
 Download the directory [capture_system_audio](https://github.com/guest271314/captureSystemAudio/tree/master/native_messaging/capture_system_audio), set "Developer mode" to on at `chrome://extensions`, click "Load unpacked".
 
-Note the generated extension ID and substitute that value for `<id>` in `capture_system_audio.json`, `manifest.json`, and `audioStream.js`.
+Note the generated extension ID and substitute that value for `<id>` in `capture_system_audio.json`.
   
 Set `capture_system_audio.py` to executable.
 
 `chmod u+x index.php capture_system_audio.py`
 
-(See also C++ version [capture_system_audio.cpp](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio.cpp), which depends on https://github.com/nlohmann/json)
+Compile C++ version [capture_system_audio.cpp](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio.cpp)
+
+`clang++ capture_system_audio.cpp -o capture_system_audio`
+
+Adjust `"path"` in `capture_system_audio.json` to location of compiled executable or shared library.
 
 Copy Native Messaging manifest to Chromium 
+or Chrome configuration folder
 
 `cp capture_system_audio.json ~/.config/chromium/NativeMessagingHosts`
 
-or Chrome configuration folder.
+or
 
 `cp capture_system_audio.json ~/.config/google-chrome-unstable/NativeMessagingHosts`
 

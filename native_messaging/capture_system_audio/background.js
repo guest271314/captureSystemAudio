@@ -176,12 +176,18 @@ async function _audioStream(src) {
                     if (channelData.length) {
                       this.inputController.enqueue(channelData);
                     }
-                    while (this.inputController.desiredSize < 0) {
+                    while (this.inputController.desiredSize <= 1) {
                       await scheduler.postTask(() => {});
+                      if (this.inputController.desiredSize === 1) {
+                        break;
+                      }
                     }
                     this.inputController.close();
-                    while (this.audioWriter.desiredSize < 0) {
+                    while (this.audioWriter.desiredSize <= 1) {
                       await scheduler.postTask(() => {});
+                      if (this.audioWriter.desiredSize === 1) {
+                        break;
+                      }
                     }
                     await this.audioWriter.close();
                     await this.audioWriter.closed;

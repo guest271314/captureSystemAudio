@@ -25,8 +25,7 @@ void sendMessage(string message) {
 int main() {
   string message = getMessage();
   // Exclude double quotation marks from beginning and end of string
-  string input = message.substr(1, message.length() - 2);
-  FILE *pipe = popen(input.c_str(), "r");
+  FILE *pipe = popen(message.substr(1, message.length() - 2).c_str(), "r");
   while (true) {
     uint8_t buffer[1764]; // 441 * 4
     size_t count = fread(buffer, 1, sizeof(buffer), pipe);

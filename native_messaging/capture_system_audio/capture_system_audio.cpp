@@ -5,37 +5,36 @@
 #include <iostream>
 using namespace std;
 
-void sendMessage(string message) {
-  uint32_t size = uint32_t(message.size());
-  char *length = reinterpret_cast<char *>(&size);
-  fwrite(length, 4, sizeof(char), stdout);
-  fwrite(message.c_str(), message.length(), sizeof(char), stdout);
-  fflush(stdout);
-}
-
 string getMessage() {
-  char length[4];
-  fread(length, 4, sizeof(char), stdin);
-  uint32_t len = *reinterpret_cast<uint32_t *>(length);
-  if (!len) {
-    exit(EXIT_SUCCESS);
-  }
-  char message[len];
-  fread(message, len, sizeof(char), stdin);
+  uint32_t length;
+  cin.read(reinterpret_cast<char *>(&length), 4);
+  char message[length];
+  cin.read(message, length);
   string content(message, message + sizeof(message) / sizeof(message[0]));
   return content;
+}
+
+void sendMessage(string message) {
+  uint32_t size = message.size();
+  char *length = reinterpret_cast<char *>(&size);
+  cout.write(length, 4);
+  cout.write(message.c_str(), message.size());
+  cout.flush();
 }
 
 int main() {
   string message = getMessage();
   // Exclude double quotation marks from beginning and end of string
-  FILE *pipe = popen(message.substr(1, message.length() - 2).c_str(), "r");
+  string input = message.substr(1, message.length() - 2);
+  FILE *pipe = popen(input.c_str(), "r");
   while (true) {
-    unsigned char buffer[1764]; // 441 * 4
+    uint8_t buffer[1764]; // 441 * 4
     size_t count = fread(buffer, 1, sizeof(buffer), pipe);
-    string output = "[";
+    string output;
+    output.reserve((count * 4) + 2);
+    output += "[";
     for (size_t i = 0; i < count; i++) {
-      output += to_string((int)buffer[i]);
+      output += to_string(buffer[i]);
       if (i < count - 1) {
         output += ",";
       }

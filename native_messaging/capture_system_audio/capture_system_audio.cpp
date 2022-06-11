@@ -8,17 +8,17 @@ using namespace std;
 string getMessage() {
   uint32_t length;
   cin.read(reinterpret_cast<char *>(&length), 4);
-  char message[length];
-  cin.read(message, length);
-  string content(message, message + sizeof(message) / sizeof(message[0]));
+  string content;
+  content.resize(length);
+  char* buffer = &(content[0]);
+  cin.read(buffer, length);
   return content;
 }
 
 void sendMessage(string message) {
   uint32_t size = message.size();
-  char *length = reinterpret_cast<char *>(&size);
-  cout.write(length, 4);
-  cout.write(message.c_str(), message.size());
+  cout.write(reinterpret_cast<char *>(&size), 4);
+  cout.write(message.c_str(), size);
   cout.flush();
 }
 

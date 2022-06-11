@@ -1,11 +1,7 @@
 #!/usr/bin/env -S python3 -u
 # https://github.com/mdn/webextensions-examples/pull/157
 
-import sys
-import json
-import struct
-import os
-import subprocess
+import sys, json, struct, os, subprocess
 from shlex import split
 
 try:

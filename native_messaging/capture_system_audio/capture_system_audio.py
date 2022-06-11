@@ -4,7 +4,6 @@
 import sys
 import json
 import struct
-import argparse
 import os
 import subprocess
 from shlex import split

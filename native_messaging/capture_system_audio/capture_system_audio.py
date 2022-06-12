@@ -28,14 +28,16 @@ try:
         sys.stdout.buffer.write(encodedMessage['content'])
         sys.stdout.buffer.flush()
 
-    while True:
-        receivedMessage = getMessage()
-        process = subprocess.Popen(split(receivedMessage), stdout=subprocess.PIPE)
-        os.set_blocking(process.stdout.fileno(), False)
+    receivedMessage = getMessage()
+    process = subprocess.Popen(split(receivedMessage), stdout=subprocess.PIPE)
+    os.set_blocking(process.stdout.fileno(), False)
+
+    while True:      
         for chunk in iter(lambda: process.stdout.read(), b''):
             if chunk is not None:
                 encoded = [int('%02X' % i, 16) for i in chunk]
-                sendMessage(encodeMessage(encoded))                       
+                sendMessage(encodeMessage(encoded))   
+                
 except Exception as e:
     sys.stdout.buffer.flush()
     sys.stdin.buffer.flush()

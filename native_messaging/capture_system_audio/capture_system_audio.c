@@ -28,7 +28,6 @@ int main() {
   char *strdelch(char *str, char ch) {
     char *current = str;
     char *tail = str;
-
     while (*tail) {
       if (*tail == ch) {
         tail++;

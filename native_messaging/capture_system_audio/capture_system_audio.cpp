@@ -17,20 +17,21 @@ string getMessage() {
 
 void sendMessage(string message) {
   uint32_t size = message.size();
-  cout.write(reinterpret_cast<char *>(&size), 4);
-  cout.write(message.c_str(), size);
+  char *length = reinterpret_cast<char *>(&size);
+  cout.write(length, 4);
+  cout.write(message.c_str(), message.size());
   cout.flush();
 }
 
 int main() {
   string message = getMessage();
+  uint8_t buffer[1764]; // 441 * 4
+  string output;
+  output.reserve((1764 * 4) + 2);
   // Exclude double quotation marks from beginning and end of string
   FILE *pipe = popen(message.substr(1, message.length() - 2).c_str(), "r");
   while (true) {
-    uint8_t buffer[1764]; // 441 * 4
-    size_t count = fread(buffer, 1, sizeof(buffer), pipe);
-    string output;
-    output.reserve((count * 4) + 2);
+    size_t count = fread(buffer, 1, sizeof(buffer), pipe);   
     output += "[";
     for (size_t i = 0; i < count; i++) {
       output += to_string(buffer[i]);
@@ -40,5 +41,6 @@ int main() {
     }
     output += "]";
     sendMessage(output);
+    output.erase(output.begin(), output.end());
   }
 }

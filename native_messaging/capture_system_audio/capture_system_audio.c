@@ -21,27 +21,28 @@ void sendMessage(const char *response) {
   fflush(stdout);
 }
 
+// Exclude double quotation marks from beginning and end of string
+// https://stackoverflow.com/a/67259615
+char *strdelch(char *str, char ch) {
+  char *current = str;
+  char *tail = str;
+  while (*tail) {
+    if (*tail == ch) {
+      tail++;
+    } else {
+      *current++ = *tail++;
+    }
+  }
+  *current = 0;
+  return str;
+}
+
 int main() {
   const char *message = getMessage();
-  // Exclude double quotation marks from beginning and end of string
-  // https://stackoverflow.com/a/67259615
-  char *strdelch(char *str, char ch) {
-    char *current = str;
-    char *tail = str;
-    while (*tail) {
-      if (*tail == ch) {
-        tail++;
-      } else {
-        *current++ = *tail++;
-      }
-    }
-    *current = 0;
-    return str;
-  }
   char *command = strdelch((char *)message, '"');
   uint8_t buffer[1764]; // 441 * 4
   // https://www.reddit.com/r/cpp_questions/comments/vdm4pg/comment/icl1j6s/
-  char *output = malloc(1764 * 4 + 3);
+  char *output = malloc((1764 * 4) + 3);
   fflush(NULL);
   FILE *pipe = popen(command, "r");
   while (1) {
@@ -49,9 +50,9 @@ int main() {
     output[0] = '[';
     output[1] = 0;
     for (size_t i = 0; i < count; i++) {
-      char cbuf[5];
-      sprintf(cbuf, "%d", (int)buffer[i]);
-      strcat(output, cbuf);
+      char data[5];
+      sprintf(data, "%d", buffer[i]);
+      strcat(output, data);
       if (i < count - 1) {
         strcat(output, ",");
       }

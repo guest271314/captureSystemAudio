@@ -25,9 +25,10 @@ void sendMessage(string message) {
 
 int main() {
   string message = getMessage();
-  uint8_t buffer[1764]; // 441 * 4
+  size_t length = 1764; // 441 * 4
+  uint8_t buffer[length]; 
   string output;
-  output.reserve((1764 * 4) + 2);
+  output.reserve((length * 4) + 2);
   // Exclude double quotation marks from beginning and end of string
   FILE *pipe = popen(message.substr(1, message.length() - 2).c_str(), "r");
   while (true) {

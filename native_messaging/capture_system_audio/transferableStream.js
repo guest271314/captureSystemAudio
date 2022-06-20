@@ -38,9 +38,15 @@ onload = () => {
       try {
         port.disconnect(id);
         console.log(writer.desiredSize, message);
-        while (writer.desiredSize < 1) {
+        while (writer.desiredSize <= 1) {    
           await scheduler.postTask(() => {});
+          if (writer.desiredSize === 1) {
+            console.log('writable', writer.desiredSize);   
+            break;
+          }
         }
+        await writer.close();
+        await writer.closed;
         await writer.close();
         await writer.closed;
         console.log(writer.desiredSize);

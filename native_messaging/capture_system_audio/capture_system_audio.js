@@ -28,7 +28,6 @@ function sendMessage(json) {
 
 function main() {
   const message = getMessage();
-  sendMessage(String.fromCharCode.apply(null, message));
   const size = 1764;
   let data = new Uint8Array(size);
   const pipe = std.popen(

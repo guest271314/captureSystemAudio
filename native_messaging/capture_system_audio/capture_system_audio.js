@@ -12,12 +12,14 @@ function getMessage() {
 }
 
 function sendMessage(json) {
-  const header = new Uint8Array(Uint32Array.from(
-    {
-      length: 4,
-    },
-    (_, index) => (json.length >> (index * 8)) & 0xff
-  ));
+  const header = new Uint8Array(
+    Uint32Array.from(
+      {
+        length: 4,
+      },
+      (_, index) => (json.length >> (index * 8)) & 0xff
+    )
+  );
   std.out.write(header.buffer, 0, header.length);
   std.out.puts(json);
   std.out.flush();
@@ -27,7 +29,7 @@ function sendMessage(json) {
 function main() {
   const message = getMessage();
   sendMessage(String.fromCharCode.apply(null, message));
-  const size = 1764; // 441 * 4
+  const size = 1764;
   let data = new Uint8Array(size),
     count = 0;
   const pipe = std.popen(

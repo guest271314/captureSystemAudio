@@ -1,7 +1,6 @@
 #!/usr/bin/env -S qjs -m --std
 // QuickJS Native Messaging host
-// guest271314, 6-19-2022
-import * as std from 'std';
+// guest271314, 5-6-2022
 
 function getMessage() {
   const header = new Uint32Array(1);

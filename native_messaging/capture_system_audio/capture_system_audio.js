@@ -2,7 +2,6 @@
 // QuickJS Native Messaging host
 // guest271314, 6-19-2022
 import * as std from 'std';
-import { popenAndRead } from './popen.so';
 
 function getMessage() {
   const header = new Uint32Array(1);
@@ -29,12 +28,22 @@ function sendMessage(json) {
 }
 
 function main() {
-  popenAndRead(
-    JSON.parse(String.fromCharCode.apply(null, getMessage())),
-    (data) => {
-      sendMessage(`[${new Uint8Array(data).toString()}]`);
-    }
+  const message = getMessage();
+  sendMessage(String.fromCharCode.apply(null, message));
+  const size = 1764; // 441 * 4
+  let data = new Uint8Array(size),
+    count = 0;
+  const pipe = std.popen(
+    JSON.parse(String.fromCharCode.apply(null, message)),
+    'r'
   );
+  while ((count = pipe.read(data.buffer, 0, data.length))) {
+    if (count < size) {
+      data = data.subarray(0, count);
+    }
+    sendMessage(`[${data}]`);
+    pipe.flush();
+  }
 }
 try {
   main();

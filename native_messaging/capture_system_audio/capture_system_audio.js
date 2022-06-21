@@ -30,16 +30,12 @@ function main() {
   const message = getMessage();
   sendMessage(String.fromCharCode.apply(null, message));
   const size = 1764;
-  let data = new Uint8Array(size),
-    count = 0;
+  let data = new Uint8Array(size);
   const pipe = std.popen(
     JSON.parse(String.fromCharCode.apply(null, message)),
     'r'
   );
-  while ((count = pipe.read(data.buffer, 0, data.length))) {
-    if (count < size) {
-      data = data.subarray(0, count);
-    }
+  while (pipe.read(data.buffer, 0, data.length)) {
     sendMessage(`[${data}]`);
     pipe.flush();
   }

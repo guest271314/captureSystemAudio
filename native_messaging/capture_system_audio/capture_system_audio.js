@@ -4,23 +4,15 @@
 
 function getMessage() {
   const header = new Uint32Array(1);
-  std.in.read(header.buffer, 0, header.byteLength);
-  const length = header[0];
+  std.in.read(header.buffer, 0, 4);
+  const [length] = header;
   const output = new Uint8Array(length);
   std.in.read(output.buffer, 0, length);
   return output;
 }
 
 function sendMessage(json) {
-  const header = new Uint8Array(
-    Uint32Array.from(
-      {
-        length: 4,
-      },
-      (_, index) => (json.length >> (index * 8)) & 0xff
-    )
-  );
-  std.out.write(header.buffer, 0, header.length);
+  std.out.write(Uint32Array.of(json.length).buffer, 0, 4);
   std.out.puts(json);
   std.out.flush();
   return true;

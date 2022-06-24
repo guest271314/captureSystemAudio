@@ -15,7 +15,6 @@ function sendMessage(json) {
   std.out.write(Uint32Array.of(json.length).buffer, 0, 4);
   std.out.puts(json);
   std.out.flush();
-  return true;
 }
 
 function main() {

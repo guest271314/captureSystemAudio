@@ -22,7 +22,7 @@ function main() {
   const size = 1764;
   let data = new Uint8Array(size);
   const pipe = std.popen(
-    JSON.parse(String.fromCharCode.apply(null, message)),
+    JSON.parse(String.fromCharCode(...message)),
     'r'
   );
   while (pipe.read(data.buffer, 0, data.length)) {

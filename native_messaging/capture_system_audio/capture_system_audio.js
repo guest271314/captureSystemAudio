@@ -30,6 +30,7 @@ function main() {
     pipe.flush();
   }
 }
+
 try {
   main();
 } catch (e) {

@@ -1,4 +1,4 @@
-#!/usr/bin/env -S qjs -m --std
+#!/usr/bin/env -S qjs --std
 // QuickJS Native Messaging host
 // guest271314, 5-6-2022
 

@@ -15,6 +15,7 @@ function sendMessage(json) {
   std.out.write(Uint32Array.of(json.length).buffer, 0, 4);
   std.out.puts(json);
   std.out.flush();
+  std.gc();
 }
 
 function main() {
@@ -28,6 +29,7 @@ function main() {
   while (pipe.read(data.buffer, 0, data.length)) {
     sendMessage(`[${data}]`);
     pipe.flush();
+    std.gc();
   }
 }
 

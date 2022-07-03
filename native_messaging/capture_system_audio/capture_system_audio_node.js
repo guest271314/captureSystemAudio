@@ -42,7 +42,7 @@ function handleMessage(input) {
   let { spawn } = require('child_process');
   let child = spawn(command, args);
   function read() {
-    while (null !== (chunk = child.stdout.read())) {
+    while (chunk = child.stdout.read()) {
       sendMessage([...chunk]);
       chunk = null;
       global.gc();

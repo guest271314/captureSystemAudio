@@ -1,4 +1,4 @@
-#!/usr/bin/env -S /path/to/node --max-old-space-size=6 --expose-gc --v8-pool-size=1 --jitless
+#!/usr/bin/env -S UV_THREADPOOL_SIZE=1 /path/to/node --max-old-space-size=6 --expose-gc --v8-pool-size=1 --jitless
 // Node.js Native Messaging host
 // https://github.com/simov/native-messaging/blob/master/protocol.js
 // https://github.com/simov/native-messaging/blob/master/nodejs/example.js

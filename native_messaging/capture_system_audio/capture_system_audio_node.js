@@ -4,7 +4,6 @@
 // https://github.com/simov/native-messaging/blob/master/nodejs/example.js
 // Might be good to use an explicit path to node on the shebang line
 // in case it isn't in PATH when launched by Chrome
-process.env.UV_THREAD_POOL = 1;
 process.stdin.on('readable', () => {
   let input = [];
   let chunk;

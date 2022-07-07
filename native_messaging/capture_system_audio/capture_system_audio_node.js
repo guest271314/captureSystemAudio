@@ -7,7 +7,7 @@
 process.stdin.on('readable', () => {
   let input = [];
   let chunk;
-  while ((chunk = process.stdin.read())) {
+  while (chunk = process.stdin.read()) {
     input.push(chunk);
   }
   input = Buffer.concat(input);

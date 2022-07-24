@@ -389,6 +389,13 @@ audioStream.stop();
 
 Alternatively, click extension icon to start/stop system audio output capture.
 
+To capture multiple (2) channels from microphone input, which is not supported by `getUserMedia({audio: true})` support 1 channel capture on Chromium 105 and Firefox 101.
+
+```
+var audioStream = new AudioStream(
+  'parec -d @DEFAULT_SOURCE@', 'audio/mp3' // 'audio/webm;codecs=opus'
+);
+```
 <h5>PulseAudio module-remap-source</h5>
 
 This article [Virtual microphone using GStreamer and PulseAudio](https://aweirdimagination.net/2020/07/19/virtual-microphone-using-gstreamer-and-pulseaudio/) describes a workaround Chrome and Chromium browsers' refusal to list or capture monitor devices on Linux
@@ -479,3 +486,4 @@ if running, closing then restarting Chrome, Chromium, or Firefox, the device sel
 - https://github.com/guest271314/setUserMediaAudioSource
 - https://gist.github.com/guest271314/53e00c6765aa256362fb52c08e82d189#file-capture_monitor_devices_at_chromium_and_chrome_on_linux-md
 - https://www.freedesktop.org/wiki/Software/PulseAudio/FAQ/
+- https://bugs.chromium.org/p/chromium/issues/detail?id=453876

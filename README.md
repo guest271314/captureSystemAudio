@@ -407,7 +407,7 @@ we can run
 
 ```
 pactl load-module module-remap-source \
-  master="$(pactl list | grep -A2 'Source #' | grep 'Name: .*\.monitor$' | cut -d" " -f2)" \
+  master=@DEFAULT_MONITOR@ \
   source_name=virtmic source_properties=device.description=Virtual_Microphone
 ```
 
@@ -415,26 +415,39 @@ and then at Chromium and Chrome run
 
 ```
 var recorder;
-navigator.mediaDevices.getUserMedia({audio: true})
-.then(async stream => {
+navigator.mediaDevices.getUserMedia({
+  audio: true
+}).then(async (stream) => {
   const [track] = stream.getAudioTracks();
   const devices = await navigator.mediaDevices.enumerateDevices();
   console.log(devices, track.label, track.getSettings(), await track.getConstraints());
-  const device = devices.find(({label}) => label === 'Virtual_Microphone');
+  const device = devices.find(({label})=>label === 'Virtual_Microphone');
   if (track.getSettings().deviceId === device.deviceId) {
     return stream;
   } else {
-  track.stop();
-    return navigator.mediaDevices.getUserMedia({audio: {deviceId: {exact: device.deviceId}}});
+    track.stop();
+    return navigator.mediaDevices.getUserMedia({
+      audio: {
+        deviceId: {
+          exact: device.deviceId
+        },
+        echoCancellation: false,
+        // noiseSupression: false,
+        // autoGainControl: false,
+        channelCount: 2
+      }
+    });
   }
-})
-.then(async stream => {
-   // do stuff with rempapped monitor device
-   recorder = new MediaRecorder(stream);
-   recorder.ondataavailable = e => console.log(URL.createObjectURL(e.data));
-   recorder.start();
-   setTimeout(_ => recorder.stop(), 30000);
-});
+}
+).then(async stream=>{
+  // do stuff with rempapped monitor device
+  recorder = new MediaRecorder(stream);
+  recorder.ondataavailable = e => console.log(URL.createObjectURL(e.data));
+  recorder.onstop = () => recorder.stream.getAudioTracks()[0].stop();
+  recorder.start();
+  setTimeout(()=>recorder.stop(), 10000);
+}
+);
 ```
 
 to first get permission to read labels of devices, find the device we want to capture, capture the virtual microphone device, in this case a monitor device, see https://bugs.chromium.org/p/chromium/issues/detail?id=931749#c6.
@@ -446,6 +459,12 @@ To set the default source programmatically to the virtual microphone `"virtmic"`
 pactl set-default-source virtmic
 ```
 if running, closing then restarting Chrome, Chromium, or Firefox, the device selected by `navigator,mediaDevices.getUserMedia({audio: true})`, unless changed by selection or other setting, will be the remapped monitor device `"Virtual_Microphone"`.
+
+When `echoCancellation` is set to true and `channelCount` is not explicitly set to `2`, respectively, `channelCount` of audio `MediaStreamTrack` will always be `1`.
+
+Related: When `channelCount` is set to `2` and `echoCancellation` is set to `true`, only silence is captured by `MediaRecorder`.
+
+Explicitly set `channelCount` to `2`, `echoCancellation` to `false` in audio constraints to capture 2 channels, when available.
 
 <h5>References</h5>
 
@@ -479,3 +498,4 @@ if running, closing then restarting Chrome, Chromium, or Firefox, the device sel
 - https://github.com/guest271314/setUserMediaAudioSource
 - https://gist.github.com/guest271314/53e00c6765aa256362fb52c08e82d189#file-capture_monitor_devices_at_chromium_and_chrome_on_linux-md
 - https://www.freedesktop.org/wiki/Software/PulseAudio/FAQ/
+- https://bugs.chromium.org/p/chromium/issues/detail?id=453876

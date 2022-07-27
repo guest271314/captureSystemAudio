@@ -415,39 +415,27 @@ and then at Chromium and Chrome run
 
 ```
 var recorder;
-navigator.mediaDevices.getUserMedia({
-  audio: true
-}).then(async (stream) => {
-  const [track] = stream.getAudioTracks();
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  console.log(devices, track.label, track.getSettings(), await track.getConstraints());
-  const device = devices.find(({label})=>label === 'Virtual_Microphone');
-  if (track.getSettings().deviceId === device.deviceId) {
-    return stream;
-  } else {
-    track.stop();
-    return navigator.mediaDevices.getUserMedia({
-      audio: {
-        deviceId: {
-          exact: device.deviceId
-        },
-        echoCancellation: false,
-        // noiseSupression: false,
-        // autoGainControl: false,
-        channelCount: 2
-      }
-    });
-  }
-}
-).then(async stream=>{
-  // do stuff with rempapped monitor device
-  recorder = new MediaRecorder(stream);
-  recorder.ondataavailable = e => console.log(URL.createObjectURL(e.data));
-  recorder.onstop = () => recorder.stream.getAudioTracks()[0].stop();
-  recorder.start();
-  setTimeout(()=>recorder.stop(), 10000);
-}
-);
+const devices = await navigator.mediaDevices.enumerateDevices();
+const device = devices.find(({label})=>label === 'Virtual_Microphone');
+const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            deviceId: {
+              exact: device.deviceId
+            },
+            echoCancellation: false,
+            noiseSupression: false,
+            autoGainControl: false,
+            channelCount: 2,
+          },
+        });
+const [track] = stream.getAudioTracks();
+console.log(devices, track.label, track.getSettings(), await track.getConstraints());
+// do stuff with rempapped monitor device
+recorder = new MediaRecorder(stream);
+recorder.ondataavailable = e => console.log(URL.createObjectURL(e.data));
+recorder.onstop = () => recorder.stream.getAudioTracks()[0].stop();
+recorder.start();
+setTimeout(()=>recorder.stop(), 10000);
 ```
 
 to first get permission to read labels of devices, find the device we want to capture, capture the virtual microphone device, in this case a monitor device, see https://bugs.chromium.org/p/chromium/issues/detail?id=931749#c6.

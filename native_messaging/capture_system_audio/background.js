@@ -247,14 +247,11 @@ async function _audioStream(src) {
                           right[i] < 0 ? right[i] * 32768 : right[i] * 32767;
                       }
                     }
-                    const data = new Float32Array(882);
-                    data.set(left, 0);
-                    data.set(right, 441);
                     const frame = new AudioData({
                       timestamp,
-                      data,
+                      data: int16,
                       sampleRate: 44100,
-                      format: 'f32-planar',
+                      format: 's16',
                       numberOfChannels: 2,
                       numberOfFrames: 441,
                     });

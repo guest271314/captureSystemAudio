@@ -423,7 +423,7 @@ const stream = await navigator.mediaDevices.getUserMedia({
               exact: device.deviceId
             },
             echoCancellation: false,
-            noiseSupression: false,
+            noiseSuppression: false,
             autoGainControl: false,
             channelCount: 2,
           },

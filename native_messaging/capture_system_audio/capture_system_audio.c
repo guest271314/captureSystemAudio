@@ -1,26 +1,28 @@
 // Native Messaging host C
 // https://stackoverflow.com/q/64400254
 // https://gist.github.com/zed/4459378be67a4b37f53430e0703cb700
+// https://www.reddit.com/r/cpp_questions/comments/vdm4pg/comment/icl1j6s/
+// https://www.reddit.com/r/C_Programming/comments/y4omt0/how_to_fix_memory_leak/
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-const char *getMessage() {
-  uint32_t message_length;
-  fread(&message_length, sizeof message_length, 1, stdin);
-  char *message = malloc(message_length);
-  fread(message, sizeof *message, message_length, stdin);
+uint8_t* getMessage(size_t *inputLength) {
+  uint32_t messageLength = 0;
+  fread(&messageLength, sizeof(messageLength), 1, stdin);
+  uint8_t *message = calloc(messageLength, sizeof(*message));
+  fread(message, sizeof(*message), messageLength, stdin);
+  *inputLength = messageLength;
   return message;
 }
 
-void sendMessage(const char *response) {
-  const uint32_t response_length = strlen(response);
-  fwrite(&response_length, sizeof response_length, 1, stdout);
-  fwrite(response, response_length, 1, stdout);
+void sendMessage(uint8_t *response) {
+  const uint32_t responseLength = strlen(response);
+  fwrite(&responseLength, sizeof responseLength, 1, stdout);
+  fwrite(response, responseLength, 1, stdout);
   fflush(stdout);
 }
-
 // Exclude double quotation marks from beginning and end of string
 // https://stackoverflow.com/a/67259615
 char *strdelch(char *str, char ch) {
@@ -37,14 +39,14 @@ char *strdelch(char *str, char ch) {
   return str;
 }
 
-int main() {
-  const char *message = getMessage();
+int main(void) {
+  size_t messageLength = 0;
+  uint8_t *const message = getMessage(&messageLength);
   char *command = strdelch((char *)message, '"');
   uint8_t buffer[1764]; // 441 * 4
-  // https://www.reddit.com/r/cpp_questions/comments/vdm4pg/comment/icl1j6s/
   char *output = malloc((1764 * 4) + 3);
-  fflush(NULL);
   FILE *pipe = popen(command, "r");
+  free(message);
   while (1) {
     size_t count = fread(buffer, 1, sizeof(buffer), pipe);
     output[0] = '[';
@@ -58,9 +60,8 @@ int main() {
       }
     }
     strcat(output, "]");
-    sendMessage((const char *)output);
-    fflush(NULL);
+    sendMessage((uint8_t *)output);
   }
   free(output);
-  free(buffer);
+  return 0;
 }

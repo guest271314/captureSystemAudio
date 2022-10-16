@@ -1,5 +1,5 @@
 const start = new Date();
-
+chrome.storage.local.clear();
 async function _audioStream(src) {
   if (globalThis.audioStream) {
     // stop capturing system audio output

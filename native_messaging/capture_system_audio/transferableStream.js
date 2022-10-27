@@ -47,8 +47,6 @@ onload = () => {
         }
         await writer.close();
         await writer.closed;
-        await writer.close();
-        await writer.closed;
         console.log(writer.desiredSize);
         parent.postMessage(0, name);
         onmessage = null;

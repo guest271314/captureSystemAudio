@@ -367,7 +367,7 @@ At `console` or Sources -> Snippets at origins set in `"matches"` in `manifest.j
 
 ```
 var audioStream = new AudioStream(
-  'parec -d @DEFAULT_MONITOR@', 'audio/mp3' // 'audio/webm;codecs=opus'
+  'parec -d @DEFAULT_MONITOR@', 'audio/webm;codecs=opus' // 'audio/mp3'
 );
 // audioStream.mediaStream: live MediaStream
 audioStream

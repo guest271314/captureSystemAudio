@@ -370,7 +370,7 @@ chrome.action.onClicked.addListener(async (tab) => {
       tabId: (await chrome.storage.local.get('tabId')).tabId,
     },
     world: 'MAIN',
-    args: [`${chrome.runtime.getURL('')}transferableStream.html`],
+    args: [chrome.runtime.getURL('transferableStream.html')],
     func: _audioStream,
   });
   if ((await chrome.action.getTitle({})) === 'Capture system audio') {

@@ -18,7 +18,7 @@ try:
     # Encode a message for transmission,
     # given its content.
     def encodeMessage(messageContent):
-        encodedContent = json.dumps(messageContent).encode('utf-8')
+        encodedContent = json.dumps(messageContent, separators=(',', ':')).encode('utf-8')
         encodedLength = struct.pack('@I', len(encodedContent))
         return {'length': encodedLength, 'content': encodedContent}
 

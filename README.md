@@ -340,7 +340,7 @@ onclick = async _ => {
 
 Utilize Chromium extension with `"web_accessible_resources"` set to an HTML file that we load as an `<iframe>` in Web pages listed in `"matches"`. Stream from Native Messaging host to `<iframe>`, enqueue data in a `ReadableStream` then transfer the stream to `parent` with `postMessage()`, read the stream in "real-time", write values to a `MediaStreamTrackGenerator`.
 
-Download the directory [capture_system_audio](https://github.com/guest271314/captureSystemAudio/tree/master/native_messaging/capture_system_audio), set "Developer mode" to on at `chrome://extensions`, click "Load unpacked".
+Download the directory [capture_system_audio](https://github.com/guest271314/captureSystemAudio/tree/master/native_messaging/capture_system_audio), set "Developer mode" to on at `chrome://extensions`, click "Load unpacked". Use `background_transferable.js`.
 
 Note the generated extension ID and substitute that value for `<id>` in `capture_system_audio.json`.
   

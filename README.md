@@ -389,7 +389,7 @@ audioStream.stop();
 
 Alternatively, click extension icon to start/stop system audio output capture.
 
-<h6>Dynamically set and use `"externally_connectable"`, Media Capture Transform ("Breakout Box")</h6>
+<h6>Dynamically set and use "externally_connectable", Media Capture Transform ("Breakout Box")</h6>
 
 Set `capture_system_audio.js` and `set_externally_connectable.js` executable. Follow same steps in [Web Accessible Resources, Transferable Streams, Media Capture Transform ("Breakout Box")](https://github.com/guest271314/captureSystemAudio#web-accessible-resources-transferable-streams-media-capture-transform-breakout-box) to set `"path"` in `capture_system_audio.json` and `set_externally_connectable.json` and copy the files to Chrome/Chromium configuration directory.
 

@@ -20,6 +20,12 @@
       "matches": [ "<all_urls>" ],
       "extensions": [ ]
   }],
+  "externally_connectable": {
+    "matches": [],
+    "ids": [
+      "*"
+    ]
+  },
   "action": {
     "default_icon": {
       "16":"media-record-1-16x16.png", 
@@ -28,5 +34,6 @@
       "128":"media-record-1-128x128.png"
     }
   },
-  "author": "guest271314"
+  "author": "guest271314",
+  "homepage_url": "https://github.com/guest271314/captureSystemAudio/master/native_messaging/capture_system_audio/"
 }

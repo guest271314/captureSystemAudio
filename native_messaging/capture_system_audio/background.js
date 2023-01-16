@@ -1,8 +1,6 @@
-const start = new Date();
-chrome.storage.local.clear();
 async function _audioStream(src) {
   if (globalThis.audioStream) {
-    // stop capturing system audio output
+    // Stop capturing system audio output
     audioStream.stop();
   } else {
     class AudioStream {
@@ -12,10 +10,6 @@ async function _audioStream(src) {
         this.readOffset = 0;
         this.duration = 0;
         this.src = new URL(src);
-        document.querySelectorAll(`[src="${this.src.href}"]`)
-        .forEach((iframe) => {
-          document.body.removeChild(iframe);
-        });
         this.ac = new AudioContext({
           sampleRate: 44100,
           latencyHint: 0,
@@ -52,6 +46,10 @@ async function _audioStream(src) {
         this.mediaStream = new MediaStream([this.generator]);
         this.resolve = void 0;
         this.promise = new Promise((_) => (this.resolve = _));
+        this.portDisconnectedResolve = void 0;
+        this.portDisconnectedPromise = new Promise(
+          (_) => (this.portDisconnectedResolve = _)
+        );
         this.osc.connect(this.msd);
         this.osc.start();
         this.track.onmute = this.track.onunmute = this.track.onended = (e) =>
@@ -99,48 +97,34 @@ async function _audioStream(src) {
         return this.nativeMessageStream();
       }
       async stop() {
-        // console.log(this.inputController.desiredSize);
         try {
-          this.source.postMessage(
-            { type: 'stop', message: this.inputController.desiredSize },
-            '*'
-          );
+          this.port.postMessage('disconnect');
+          await this.portDisconnectedPromise;
+          await this.writer.close();
+          await this.writer.closed;
         } catch (err) {
           console.error(err.message);
         }
       }
       async nativeMessageStream() {
         return new Promise((resolve) => {
-          onmessage = (e) => {
-            if (e.origin === this.src.origin) {
-              // console.log(e.data);
-              if (!this.source) {
-                this.source = e.source;
-              }
-              if (e.data === 1) {
-                this.source.postMessage(
-                  { type: 'start', message: this.stdin },
-                  '*'
-                );
-              }
-              if (e.data === 0) {
-                document.querySelectorAll(`[src="${this.src.href}"]`)
-                .forEach((iframe) => {
-                  document.body.removeChild(iframe);
-                });
-                onmessage = null;
-              }
-              if (e.data instanceof ReadableStream) {
-                this.stdout = e.data;
-                resolve(this.captureSystemAudio());
-              }
+          this.port = chrome.runtime.connect(this.src.hostname);
+          const { readable, writable } = new TransformStream();
+          this.stdout = readable;
+          this.writer = writable.getWriter();
+          this.port.onMessage.addListener(async (value) => {
+            try {
+              await this.writer.ready;
+              await this.writer.write(new Uint8Array(value));
+            } catch (e) {
+              console.log(e.message);
+            } finally {
+              return true;
             }
-          };
-          this.transferableWindow = document.createElement('iframe');
-          this.transferableWindow.style.display = 'none';
-          this.transferableWindow.name = location.href;
-          this.transferableWindow.src = this.src.href;
-          document.body.appendChild(this.transferableWindow);
+          });
+          this.port.onDisconnect.addListener(this.portDisconnectedResolve);
+          this.port.postMessage(this.stdin);
+          resolve(this.captureSystemAudio());
         }).catch((err) => {
           throw err;
         });
@@ -213,7 +197,7 @@ async function _audioStream(src) {
                     if (!done) {
                       int8.set(new Int8Array(value));
                     } else {
-                      console.log({done});
+                      console.log({ done });
                       return this.audioWriter.closed;
                     }
                     const int16 = new Int16Array(int8.buffer);
@@ -229,7 +213,7 @@ async function _audioStream(src) {
                         int >= 0x8000
                           ? -(0x10000 - int) / 0x8000
                           : int / 0x7fff;
-                      // deinterleave
+                      // Deinterleave
                       channels[(n = ++n % 2)][!n ? j++ : j - 1] = float;
                     }
                     // https://github.com/zhuker/lamejs/commit/e18447fefc4b581e33a89bd6a51a4fbf1b3e1660
@@ -283,7 +267,8 @@ async function _audioStream(src) {
               this.recorder.stop();
             }
             if (this.mimeType.includes('mp3')) {
-              const mp3buf = this.mp3encoder.flush(); //finish writing mp3
+              // Finish writing MP3
+              const mp3buf = this.mp3encoder.flush();
               if (mp3buf.length > 0) {
                 this.mp3controller.enqueue(new Uint8Array(mp3buf));
                 this.mp3controller.close();
@@ -306,7 +291,7 @@ async function _audioStream(src) {
       }
     }
 
-    audioStream = new AudioStream('parec -d @DEFAULT_MONITOR@', 'audio/webm;codecs=opus');
+    audioStream = new AudioStream('parec -d @DEFAULT_MONITOR@', 'audio/mp3');
     // audioStream.mediaStream: live MediaStream
     audioStream
       .start()
@@ -360,27 +345,121 @@ async function _audioStream(src) {
   }
 }
 
-chrome.action.onClicked.addListener(async (tab) => {
-  if (!(await chrome.storage.local.get('tabId')).tabId) {
-    chrome.storage.local.clear();
-    await chrome.storage.local.set({ tabId: tab.id });
-  }
+async function executeScript(id) {
   chrome.scripting.executeScript({
     target: {
-      tabId: (await chrome.storage.local.get('tabId')).tabId,
+      tabId: id,
     },
     world: 'MAIN',
-    args: [chrome.runtime.getURL('transferableStream.html')],
+    args: [chrome.runtime.getURL('')],
     func: _audioStream,
   });
   if ((await chrome.action.getTitle({})) === 'Capture system audio') {
-    await chrome.action.setIcon({ path: './media-playback-stop-1-32x32.png' });
+    await chrome.action.setIcon({
+      path: './media-playback-stop-1-32x32.png',
+    });
     await chrome.action.setTitle({ title: 'Capturing system audio' });
   } else {
     await chrome.action.setIcon({ path: './media-record-1-32x32.png' });
     await chrome.action.setTitle({ title: 'Capture system audio' });
   }
+  return true;
+}
+
+async function handleClick(tab) {
+  if (!(await chrome.storage.local.get('tabId')).tabId) {
+    await chrome.storage.local.set({ tabId: tab.id });
+  } else {
+    if (
+      (await chrome.storage.local.get('tabId')).tabId &&
+      (await chrome.action.getTitle({})) === 'Capturing system audio'
+    ) {
+      await executeScript(+(await chrome.storage.local.get('tabId')).tabId);
+      await chrome.storage.local.clear();
+      return true;
+    }
+  }
+  let dir;
+  if (!tab.url.startsWith('chrome:')) {
+    const url = new URL(tab.url);
+    const { matches } = chrome.runtime.getManifest().externally_connectable;
+    const match = matches.find((m) => new URL(m).hostname === url.hostname);
+    if (match === undefined) {
+      const request = await fetch('manifest.json');
+      const json = await request.json();
+      json.externally_connectable.matches = [
+        ...new Set([`${url.origin}/*`, ...json.externally_connectable.matches]),
+      ];
+      const message = await chrome.runtime.sendNativeMessage(
+        'set_externally_connectable',
+        json
+      );
+      console.log(message);
+      dir = await navigator.storage.getDirectory();
+      let handle = await dir.getFileHandle('tabId.txt', { create: true });
+      await new Blob([tab.id]).stream().pipeTo(await handle.createWritable());
+      handle = await dir.getFileHandle('update.txt', { create: true });
+      await new Blob([]).stream().pipeTo(await handle.createWritable());
+      chrome.runtime.reload();
+    }
+  }
+
+  await executeScript(
+    dir
+      ? +(await (await (await dir.getFileHandle('tabId.txt')).getFile()).text())
+      : tab.id
+  );
+  if (dir) {
+    await dir.removeEntry('tabId.txt');
+  }
+}
+
+chrome.runtime.onConnectExternal.addListener((p) => {
+  globalThis.name = chrome.runtime.getManifest().short_name;
+  globalThis.port = chrome.runtime.connectNative('capture_system_audio');
+  port.onMessage.addListener((message) => {
+    p.postMessage(message);
+  });
+  port.onDisconnect.addListener((p) => {
+    console.log(p);
+  });
+  p.onMessage.addListener(async (message) => {
+    if (message === 'disconnect') {
+      port.disconnect();
+      p.disconnect();
+      return;
+    }
+    port.postMessage(message);
+  });
+  p.onDisconnect.addListener(async (e) => {
+    console.log(e);
+    port.disconnect();
+    return;
+  });
 });
 
-onfetch = (e) => {console.log(e);};
-onmessage = (e) => {console.log(e);};
+chrome.runtime.onInstalled.addListener(async (reason) => {
+  const dir = await navigator.storage.getDirectory();
+  const keys = [];
+  for await (const key of dir.keys()) {
+    keys.push(key);
+  }
+  let handle;
+  try {
+    handle = await dir.getFileHandle('tabId.txt', { create: false });
+    handle = +(await (await handle.getFile()).text());
+  } catch (e) {
+    console.log(e.message);
+  }
+  const tab = keys.includes('tabId.txt')
+    ? await chrome.tabs.get(handle).catch((e) => {
+        return null;
+      })
+    : (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))[0];
+  if (keys.includes('update.txt')) {
+    await dir.removeEntry('update.txt');
+    if (tab) await handleClick(tab);
+  }
+});
+
+chrome.action.onClicked.addListener(handleClick);

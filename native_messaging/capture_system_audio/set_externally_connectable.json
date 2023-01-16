@@ -1,0 +1,9 @@
+{
+  "name": "set_externally_connectable",
+  "description": "Set externally_connectable in manifest.json",
+  "path": "/path/to/set_externally_connectable.js",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://<id>/"
+  ]
+}

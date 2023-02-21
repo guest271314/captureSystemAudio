@@ -416,7 +416,7 @@ async function handleClick(tab) {
 
 chrome.runtime.onConnectExternal.addListener((p) => {
   globalThis.name = chrome.runtime.getManifest().short_name;
-  globalThis.port = chrome.runtime.connectNative('capture_system_audio');
+  globalThis.port = chrome.runtime.connectNative(globalThis.name);
   port.onMessage.addListener((message) => {
     p.postMessage(message);
   });

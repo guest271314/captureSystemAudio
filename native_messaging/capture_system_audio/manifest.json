@@ -3,6 +3,7 @@
   "short_name": "capture_system_audio",
   "version": "1.0",
   "manifest_version": 3,
+  "host_permissions": ["<all_urls>"],
   "permissions": [ 
     "nativeMessaging", 
     "tabs", 

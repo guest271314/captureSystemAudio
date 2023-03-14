@@ -344,15 +344,17 @@ Download the directory [capture_system_audio](https://github.com/guest271314/cap
 
 Note the generated extension ID and substitute that value for `<id>` in `capture_system_audio.json`.
   
-Set `capture_system_audio.py` to executable.
+Set `.py`, or `.js` Native Messaging host file to executable `chmod u+x <host>`. Compile C and C++ versions. 
 
-`chmod u+x index.php capture_system_audio.py`
+Hosts should each produce the same result. Kindly file an issue if you find they do not.
 
-Compile C++ version [capture_system_audio.cpp](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio.cpp)
+- C [capture_system_audio.c](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio.c)
+- C++ [capture_system_audio.cpp](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio.cpp)
+- Python3 [capture_system_audio.py](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio.py)
+- JavaScript (Node.js) [capture_system_audio_node.js](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio_node.js)
+- JavaScript (QuickJS) [capture_system_audio.js](https://github.com/guest271314/captureSystemAudio/blob/master/native_messaging/capture_system_audio/capture_system_audio.js)
 
-`clang++ capture_system_audio.cpp -o capture_system_audio`
-
-Adjust `"path"` in `capture_system_audio.json` to location of compiled executable or shared library.
+Adjust `"path"` in `capture_system_audio.json` to location of (compiled) executable.
 
 Copy Native Messaging manifest to Chromium 
 or Chrome configuration folder

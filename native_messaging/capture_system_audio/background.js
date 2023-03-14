@@ -68,7 +68,7 @@ async function _audioStream(src) {
       async importEncoder() {
         if (this.mimeType.includes('mp3')) {
           const { lamejs } = await import(`${this.src.origin}/lame.min.js`);
-          this.mp3encoder = new lamejs.Mp3Encoder(2, 44100, 128);
+          this.mp3encoder = new lamejs.Mp3Encoder(2, 44100, 256);
           this.mp3controller = void 0;
           this.mp3stream = new ReadableStream({
             start: (_) => {

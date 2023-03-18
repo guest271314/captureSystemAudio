@@ -63,14 +63,14 @@ async function _audioStream(src) {
             this.resolve(this.injectMetadata(data));
           };
         }
-        this.importEncoder();
+        this.importEncoderPromise = this.importEncoder();
       }
       async importEncoder() {
         if (this.mimeType.includes('mp3')) {
           const { lamejs } = await import(`${this.src.origin}/lame.min.js`);
           this.mp3encoder = new lamejs.Mp3Encoder(2, 44100, 256);
           this.mp3controller = void 0;
-          this.mp3stream = new ReadableStream({
+          return this.mp3stream = new ReadableStream({
             start: (_) => {
               return (this.mp3controller = _);
             },
@@ -83,7 +83,7 @@ async function _audioStream(src) {
             Reader,
             injectMetadata,
           } = await import(`${this.src.origin}/ts-ebml.min.js`);
-          Object.assign(this, {
+          return Object.assign(this, {
             Decoder,
             Encoder,
             tools,
@@ -94,6 +94,7 @@ async function _audioStream(src) {
       }
       async start() {
         console.log(this);
+        await this.importEncoderPromise;
         return this.nativeMessageStream();
       }
       async stop() {

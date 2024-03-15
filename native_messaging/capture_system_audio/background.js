@@ -110,7 +110,7 @@ async function _audioStream(src) {
       async nativeMessageStream() {
         return new Promise((resolve) => {
           this.port = chrome.runtime.connect(this.src.hostname);
-          const { readable, writable } = new TransformStream();
+          const { readable, writable } = new TransformStream({}, {}, {highWaterMark:65536});
           this.stdout = readable;
           this.writer = writable.getWriter();
           this.port.onMessage.addListener(async (value) => {
